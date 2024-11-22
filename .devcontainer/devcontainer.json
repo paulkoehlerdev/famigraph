@@ -1,0 +1,15 @@
+{
+  "name": "Go",
+  "image": "mcr.microsoft.com/devcontainers/go:1.23-bookworm",
+  "features": {
+    "ghcr.io/guiyomh/features/golangci-lint:latest": {},
+  },
+
+  "postCreateCommand": "go version",
+
+  "customizations": {
+    "jetbrains": {
+      "backend": "GoLand"
+    }
+  },
+}

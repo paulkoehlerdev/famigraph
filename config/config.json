@@ -1,0 +1,6 @@
+{
+  "server": {
+    "addr": "0.0.0.0:80",
+    "shutdownTimeout": "1m"
+  }
+}
