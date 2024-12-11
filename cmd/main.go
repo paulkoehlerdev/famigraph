@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/paulkoehlerdev/hackaTUM2024/config"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/domain/service"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http/endpoints"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/libraries/logger"
-	"github.com/paulkoehlerdev/hackaTUM2024/pkg/slices"
-	"github.com/paulkoehlerdev/hackaTUM2024/templates"
+	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
+	badgerRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/badger"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
+	"github.com/paulkoehlerdev/famigraph/internal/libraries/badger"
+	"github.com/paulkoehlerdev/famigraph/internal/libraries/logger"
+	"github.com/paulkoehlerdev/famigraph/pkg/slices"
+	"github.com/paulkoehlerdev/famigraph/templates"
 	"github.com/samber/do"
 	"log/slog"
 	"syscall"
@@ -34,10 +36,11 @@ func main() {
 		},
 	})
 
-	// misc
+	do.Provide(injector, badger.NewBadger)
 	do.Provide(injector, templates.NewHtmlTemplates)
 
 	// repositories
+	do.Provide(injector, badgerRepo.NewUserRepository)
 
 	// services
 	do.Provide(injector, service.NewQRCodeService)

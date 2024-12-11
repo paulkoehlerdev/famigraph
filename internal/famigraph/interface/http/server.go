@@ -3,9 +3,9 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/paulkoehlerdev/hackaTUM2024/config"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http/endpoints"
-	"github.com/paulkoehlerdev/hackaTUM2024/pkg/middleware"
+	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
+	"github.com/paulkoehlerdev/famigraph/pkg/middleware"
 	"github.com/samber/do"
 	"log/slog"
 	"net/http"

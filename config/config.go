@@ -17,6 +17,9 @@ type Config struct {
 		Addr            string `json:"addr"`
 		ShutdownTimeout string `json:"shutdownTimeout"`
 	} `json:"server"`
+	Database struct {
+		Path string `json:"path"`
+	} `json:"database"`
 }
 
 func LoadConfig(_ *do.Injector) (Config, error) {

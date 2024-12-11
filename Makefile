@@ -19,7 +19,7 @@ help:
 
 run: build ## Run the application
 	@echo "Running the application..."
-	@./build/hackaTUM2024
+	@./build/famigraph
 
 dev: ## run in dev mode with air
 	@air -c .air.toml

@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/domain/service"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/samber/do"
 	"html/template"
 	"log/slog"
