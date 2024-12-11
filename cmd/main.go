@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/paulkoehlerdev/hackaTUM2024/config"
-	"github.com/paulkoehlerdev/hackaTUM2024/internal/infrastructure/http"
+	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/domain/service"
+	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http"
+	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http/endpoints"
 	"github.com/paulkoehlerdev/hackaTUM2024/internal/libraries/logger"
 	"github.com/paulkoehlerdev/hackaTUM2024/pkg/slices"
+	"github.com/paulkoehlerdev/hackaTUM2024/templates"
 	"github.com/samber/do"
 	"log/slog"
 	"syscall"
@@ -31,6 +34,17 @@ func main() {
 		},
 	})
 
+	// misc
+	do.Provide(injector, templates.NewHtmlTemplates)
+
+	// repositories
+
+	// services
+	do.Provide(injector, service.NewQRCodeService)
+
+	// endpoints
+	do.ProvideNamed(injector, endpoints.ConnectEndpointName, endpoints.NewConnectEndpoint)
+
 	do.Provide(injector, http.NewServer)
 
 	do.MustInvoke[*http.Server](injector)
@@ -38,8 +52,6 @@ func main() {
 		"started application",
 		"uninvoked",
 		slices.Cut(injector.ListProvidedServices(), injector.ListInvokedServices()),
-		"invoked",
-		injector.ListInvokedServices(),
 	)
 
 	if err := injector.ShutdownOnSignals(syscall.SIGTERM, syscall.SIGINT); err != nil {

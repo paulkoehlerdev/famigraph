@@ -1,0 +1,34 @@
+{{ define "views/connect" }}
+<!DOCTYPE html>
+<html lang="en">
+{{ template "components/head" }}
+<head>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .qrcode {
+            max-width: 90%;
+        }
+
+        /* Dark mode styles */
+        @media (prefers-color-scheme: dark) {
+            .qrcode {
+                filter: invert(1);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>famigraph</h1>
+    <img src="{{ .qrcode }}" class="qrcode" alt="QR Code">
+</div>
+</body>
+</html>
+{{ end }}

@@ -1,0 +1,30 @@
+{{ define "components/head" }}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>famigraph</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            min-width: 100vw;
+            min-height: 100vh;
+            background-color: white;
+        }
+
+        /* Dark mode styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: black;
+                color: white;
+            }
+        }
+    </style>
+</head>
+{{ end }}

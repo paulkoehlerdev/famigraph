@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/paulkoehlerdev/hackaTUM2024/config"
+	"github.com/paulkoehlerdev/hackaTUM2024/internal/famigraph/interface/http/endpoints"
 	"github.com/paulkoehlerdev/hackaTUM2024/pkg/middleware"
 	"github.com/samber/do"
 	"log/slog"
@@ -47,6 +48,13 @@ func NewServer(injector *do.Injector) (*Server, error) {
 	logger = logger.With("service", "server")
 
 	mux := http.NewServeMux()
+
+	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectEndpointName)
+	if err != nil {
+		return nil, fmt.Errorf("error getting connect endpoint: %w", err)
+	}
+	mux.Handle("GET /connect", connectEndpoint)
+
 	handler := middleware.Stack(
 		middleware.Logging(logger),
 	)(mux)

@@ -21,9 +21,12 @@ run: build ## Run the application
 	@echo "Running the application..."
 	@./build/hackaTUM2024
 
+dev: ## run in dev mode with air
+	@air -c .air.toml
+
 build: ## Build the application
 	@echo "Building the application..."
-	@go build -o build/hackaTUM2024 -ldflags='-s -w -X "main.version=dev"' ./cmd
+	@go build -o build/famigraph -ldflags='-s -w -X "main.version=dev"' ./cmd
 
 lint: ## Lint the project
 	@echo "Linting..."

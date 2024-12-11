@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"github.com/lmittmann/tint"
+	"github.com/paulkoehlerdev/hackaTUM2024/config"
 	"github.com/samber/do"
 	"log/slog"
 	"os"
@@ -10,7 +11,25 @@ import (
 )
 
 func NewLogger(injector *do.Injector) (*slog.Logger, error) {
+	config, err := do.Invoke[config.Config](injector)
+	if err != nil {
+		return nil, fmt.Errorf("error getting config: %w", err)
+	}
+
+	var level slog.Level
+	switch config.Logger.Level {
+	case "debug":
+		level = slog.LevelDebug
+	case "info":
+		level = slog.LevelInfo
+	case "warn":
+		level = slog.LevelWarn
+	case "error":
+		level = slog.LevelError
+	}
+
 	logger := slog.New(tint.NewHandler(os.Stderr, &tint.Options{
+		Level:      level,
 		AddSource:  true,
 		TimeFormat: time.DateTime,
 	}))

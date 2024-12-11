@@ -10,6 +10,9 @@ import (
 var jsonStr []byte
 
 type Config struct {
+	Logger struct {
+		Level string `json:"level"`
+	} `json:"logger"`
 	Server struct {
 		Addr            string `json:"addr"`
 		ShutdownTimeout string `json:"shutdownTimeout"`
