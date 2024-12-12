@@ -2,8 +2,9 @@
   "name": "Go",
   "image": "mcr.microsoft.com/devcontainers/go:1.23-bookworm",
 
-  "postAttachCommand": "go version",
-  "postCreateCommand": "chmod +x ./setup.sh && ./setup.sh",
+  "appPort": "443:443",
+
+  "postAttachCommand": "chmod +x ./.devcontainer/setup.sh && ./.devcontainer/setup.sh",
 
   "customizations": {
     "jetbrains": {

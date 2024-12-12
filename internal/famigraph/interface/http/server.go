@@ -35,6 +35,13 @@ func (s *Server) listenAndServe() {
 	}
 }
 
+func (s *Server) listenAndServeTLS(certFile, keyFile string) {
+	err := s.server.ListenAndServeTLS(certFile, keyFile)
+	if err != nil {
+		s.logger.Error("error while listening", "err", err)
+	}
+}
+
 func NewServer(injector *do.Injector) (*Server, error) {
 	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
@@ -79,7 +86,14 @@ func NewServer(injector *do.Injector) (*Server, error) {
 		},
 	}
 
-	go server.listenAndServe()
+	if config.Server.TLS.Enabled {
+		if config.Server.TLS.Crt == nil || config.Server.TLS.Key == nil {
+			return nil, fmt.Errorf("error starting server: configuration error: key and cert need to be provided to enable tls")
+		}
+		go server.listenAndServeTLS(*config.Server.TLS.Crt, *config.Server.TLS.Key)
+	} else {
+		go server.listenAndServe()
+	}
 
 	return server, nil
 }
