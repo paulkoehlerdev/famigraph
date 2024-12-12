@@ -44,9 +44,13 @@ func main() {
 
 	// services
 	do.Provide(injector, service.NewQRCodeService)
+	do.Provide(injector, service.NewAuthService)
 
 	// endpoints
-	do.ProvideNamed(injector, endpoints.ConnectEndpointName, endpoints.NewConnectEndpoint)
+	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
+	do.ProvideNamed(injector, endpoints.RegisterName, endpoints.NewRegister)
+	do.ProvideNamed(injector, endpoints.ApiCreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)
+	do.ProvideNamed(injector, endpoints.ApiSolveRegisterChallengeName, endpoints.NewSolveRegisterChallenge)
 
 	do.Provide(injector, http.NewServer)
 

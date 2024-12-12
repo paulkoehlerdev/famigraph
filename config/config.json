@@ -12,6 +12,15 @@
     },
     "shutdownTimeout": "1m"
   },
+  "webauthn": {
+    "relyingParty": {
+      "id": "famigraph.pkoehler.dev",
+      "displayName": "famigraph",
+      "allowedOrigins": [
+        "famigraph.pkoehler.dev"
+      ]
+    }
+  },
   "database": {
     "path": "./tmp/badger"
   }

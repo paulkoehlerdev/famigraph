@@ -45,22 +45,40 @@ func (s *Server) listenAndServeTLS(certFile, keyFile string) {
 func NewServer(injector *do.Injector) (*Server, error) {
 	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting config: %w", err)
+		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
 	logger, err := do.Invoke[*slog.Logger](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting logger: %w", err)
+		return nil, fmt.Errorf("getting logger: %w", err)
 	}
 	logger = logger.With("service", "server")
 
 	mux := http.NewServeMux()
 
-	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectEndpointName)
+	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
 	if err != nil {
-		return nil, fmt.Errorf("error getting connect endpoint: %w", err)
+		return nil, fmt.Errorf("getting connect endpoint: %w", err)
 	}
 	mux.Handle("GET /connect", connectEndpoint)
+
+	registerEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.RegisterName)
+	if err != nil {
+		return nil, fmt.Errorf("getting register endpoint: %w", err)
+	}
+	mux.Handle("GET /register", registerEndpoint)
+
+	createRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ApiCreateRegisterChallengeName)
+	if err != nil {
+		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
+	}
+	mux.Handle("GET /register/challenge", createRegisterChallengeEndpoint)
+
+	solveRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ApiSolveRegisterChallengeName)
+	if err != nil {
+		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
+	}
+	mux.Handle("POST /register/challenge", solveRegisterChallengeEndpoint)
 
 	handler := middleware.Stack(
 		middleware.Logging(logger),
@@ -68,7 +86,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 
 	shutdownTimeout, err := time.ParseDuration(config.Server.ShutdownTimeout)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing config.ShutdownTimeout: %w", err)
+		return nil, fmt.Errorf("parsing config.ShutdownTimeout: %w", err)
 	}
 
 	server := &Server{
@@ -88,7 +106,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 
 	if config.Server.TLS.Enabled {
 		if config.Server.TLS.Crt == nil || config.Server.TLS.Key == nil {
-			return nil, fmt.Errorf("error starting server: configuration error: key and cert need to be provided to enable tls")
+			return nil, fmt.Errorf("starting server: configuration error: key and cert need to be provided to enable tls")
 		}
 		go server.listenAndServeTLS(*config.Server.TLS.Crt, *config.Server.TLS.Key)
 	} else {

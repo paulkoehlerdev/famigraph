@@ -13,7 +13,7 @@ import (
 func NewLogger(injector *do.Injector) (*slog.Logger, error) {
 	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting config: %w", err)
+		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
 	var level slog.Level
@@ -36,7 +36,7 @@ func NewLogger(injector *do.Injector) (*slog.Logger, error) {
 
 	version, err := do.InvokeNamed[string](injector, "version")
 	if err != nil {
-		return nil, fmt.Errorf("error getting version: %w", err)
+		return nil, fmt.Errorf("getting version: %w", err)
 	}
 	logger = logger.With("version", version)
 

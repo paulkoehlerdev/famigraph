@@ -21,13 +21,13 @@ type badgeruser struct {
 func NewUserRepository(injector *do.Injector) (repository.UserRepository, error) {
 	db, err := do.Invoke[*badger.DB](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting badger.DB: %w", err)
+		return nil, fmt.Errorf("getting badger.DB: %w", err)
 	}
 
 	return UserRepositoryImpl{db: db}, nil
 }
 
-func (u UserRepositoryImpl) GetUser(handle entity.UserHandle) (entity.User, error) {
+func (u UserRepositoryImpl) GetUser(handle entity.UserHandle) (*entity.User, error) {
 	var userBytes []byte
 	err := u.db.View(func(txn *badger.Txn) error {
 		userItem, err := txn.Get(handle)
@@ -43,19 +43,23 @@ func (u UserRepositoryImpl) GetUser(handle entity.UserHandle) (entity.User, erro
 		return nil
 	})
 	if err != nil {
-		return entity.User{}, fmt.Errorf("transaction error: %w", err)
+		return nil, fmt.Errorf("transaction error: %w", err)
 	}
 
 	var buser badgeruser
 	err = gob.NewDecoder(bytes.NewReader(userBytes)).Decode(&buser)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("error decoding user: %w", err)
+		return nil, fmt.Errorf("decoding user: %w", err)
 	}
 
-	return buser.User, nil
+	return &buser.User, nil
 }
 
-func (u UserRepositoryImpl) AddUser(user entity.User) error {
+func (u UserRepositoryImpl) AddUser(user *entity.User) error {
+	if user == nil {
+		return fmt.Errorf("user cannot be nil")
+	}
+
 	err := u.db.Update(func(txn *badger.Txn) error {
 		userItem, err := txn.Get(user.Handle)
 		if err != nil {
@@ -70,15 +74,15 @@ func (u UserRepositoryImpl) AddUser(user entity.User) error {
 		var buser badgeruser
 		err = gob.NewDecoder(bytes.NewReader(userBytes)).Decode(&buser)
 		if err != nil {
-			return fmt.Errorf("error decoding user: %w", err)
+			return fmt.Errorf("decoding user: %w", err)
 		}
 
-		buser.User = user
+		buser.User = *user
 
 		var userBuf bytes.Buffer
 		err = gob.NewEncoder(&userBuf).Encode(buser)
 		if err != nil {
-			return fmt.Errorf("error encodung user: %w", err)
+			return fmt.Errorf("encodung user: %w", err)
 		}
 
 		err = txn.Set(user.Handle, userBuf.Bytes())

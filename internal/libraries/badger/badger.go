@@ -10,12 +10,12 @@ import (
 func NewBadger(injector *do.Injector) (*badger.DB, error) {
 	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting config: %w", err)
+		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
 	db, err := badger.Open(badger.DefaultOptions(config.Database.Path))
 	if err != nil {
-		return nil, fmt.Errorf("error opening database: %w", err)
+		return nil, fmt.Errorf("opening database: %w", err)
 	}
 
 	return db, nil

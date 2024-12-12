@@ -9,22 +9,22 @@ import (
 	"net/http"
 )
 
-func NewConnectEndpoint(injector *do.Injector) (http.Handler, error) {
+func NewConnect(injector *do.Injector) (http.Handler, error) {
 	qrcodeService, err := do.Invoke[service.QRCodeService](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting qrcode service: %w", err)
+		return nil, fmt.Errorf("getting qrcode service: %w", err)
 	}
 
 	templates, err := do.Invoke[*template.Template](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting html/templates: %w", err)
+		return nil, fmt.Errorf("getting html/templates: %w", err)
 	}
 
 	logger, err := do.Invoke[*slog.Logger](injector)
 	if err != nil {
-		return nil, fmt.Errorf("error getting logger: %w", err)
+		return nil, fmt.Errorf("getting logger: %w", err)
 	}
-	logger = logger.With("service", "endpoint", "endpoint", "connect")
+	logger = logger.With("service", "endpoint", "endpoint", ConnectName)
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		qrcode, err := qrcodeService.Encode("https://google.com")

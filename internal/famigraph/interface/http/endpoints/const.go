@@ -1,3 +1,8 @@
 package endpoints
 
-const ConnectEndpointName = "connectEndpoint"
+const (
+	ConnectName                    = "getConnect"
+	RegisterName                   = "getRegister"
+	ApiCreateRegisterChallengeName = "getRegisterChallenge"
+	ApiSolveRegisterChallengeName  = "postRegisterChallenge"
+)

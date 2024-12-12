@@ -23,6 +23,13 @@ type Config struct {
 		} `json:"tls"`
 		ShutdownTimeout string `json:"shutdownTimeout"`
 	} `json:"server"`
+	Webauthn struct {
+		RelyingParty struct {
+			ID             string   `json:"id"`
+			DisplayName    string   `json:"displayName"`
+			AllowedOrigins []string `json:"allowedOrigins"`
+		} `json:"relyingParty"`
+	} `json:"webauthn"`
 	Database struct {
 		Path string `json:"path"`
 	} `json:"database"`
