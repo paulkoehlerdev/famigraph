@@ -37,7 +37,7 @@ type Config struct {
 	Session struct {
 		CookiePrefix string `json:"cookiePrefix"`
 		JWT          struct {
-			Secret []byte `json:"secret"`
+			Secret string `json:"secret"`
 		} `json:"jwt"`
 	} `json:"session"`
 	Database struct {

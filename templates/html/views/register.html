@@ -1,5 +1,4 @@
 {{ define "views/register" }}
-<!DOCTYPE html>
 <html lang="en">
 {{ template "components/head" }}
 <head>
@@ -16,7 +15,17 @@
 <body>
 <div class="container">
     <h1>famigraph</h1>
-    <h3>Register</h3>
+    <div class="error">
+        <h1>ERROR</h1>
+        <p class="error__message"></p>
+        <p class="error__details"></p>
+
+        <button onclick="register()">try again</button>
+    </div>
+
+    <script>{{ template "js/base64" }}</script>
+    <script>{{ template "js/util" }}</script>
+    <script>{{ template "js/register" }}</script>
 </div>
 </body>
 </html>

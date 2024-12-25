@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/paulkoehlerdev/famigraph/config"
@@ -20,13 +21,18 @@ type jwtclaims struct {
 }
 
 func NewSignerRepository(injector *do.Injector) (repository.Signer, error) {
-	config, err := do.Invoke[*config.Config](injector)
+	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
+	secret, err := hex.DecodeString(config.Session.JWT.Secret)
+	if err != nil {
+		return nil, fmt.Errorf("decoding secret from config: %w", err)
+	}
+
 	return &SignerRepositoryImpl{
-		secret: config.Session.JWT.Secret,
+		secret: secret,
 	}, nil
 }
 

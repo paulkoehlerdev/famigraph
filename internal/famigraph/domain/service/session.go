@@ -22,7 +22,7 @@ type sessionserviceimpl struct {
 }
 
 func NewSessionService(injector *do.Injector) (SessionService, error) {
-	config, err := do.Invoke[*config.Config](injector)
+	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting config: %w", err)
 	}

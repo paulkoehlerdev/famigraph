@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"encoding/gob"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/repository"
@@ -63,20 +64,26 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 			return nil, fmt.Errorf("preparing query: %w", err)
 		}
 	}
-
-	row := u.userGetQuery.QueryRowContext(ctx, handle)
+	dbhandle := base64.StdEncoding.EncodeToString(handle)
+	row := u.userGetQuery.QueryRowContext(ctx, dbhandle)
 	if row.Err() != nil {
 		return nil, fmt.Errorf("getting user: %w", row.Err())
 	}
 
 	var user entity.User
+	var userHandle string
 	var credentials bytes.Buffer
-	err := row.Scan(&user.Handle, &credentials)
+	err := row.Scan(&userHandle, &credentials)
 	if err != nil {
 		return nil, fmt.Errorf("scanning user: %w", err)
 	}
 
-	err = gob.NewDecoder(&credentials).Decode(&user.Credentials)
+	user.Handle, err = base64.StdEncoding.DecodeString(userHandle)
+	if err != nil {
+		return nil, fmt.Errorf("decoding user: %w", err)
+	}
+
+	err = json.NewDecoder(&credentials).Decode(&user.Credentials)
 	if err != nil {
 		return nil, fmt.Errorf("decoding user: %w", err)
 	}
@@ -85,7 +92,7 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 }
 
 func (u UserRepositoryImpl) AddUser(ctx context.Context, user *entity.User) error {
-	if u.userGetQuery == nil {
+	if u.userInsertQuery == nil {
 		var err error
 		u.userInsertQuery, err = u.db.Prepare("INSERT INTO users (handle, credentials) VALUES (?, ?)")
 		if err != nil {
@@ -94,12 +101,13 @@ func (u UserRepositoryImpl) AddUser(ctx context.Context, user *entity.User) erro
 	}
 
 	var credentials bytes.Buffer
-	err := gob.NewEncoder(&credentials).Encode(user.Credentials)
+	err := json.NewEncoder(&credentials).Encode(user.Credentials)
 	if err != nil {
 		return fmt.Errorf("encoding user: %w", err)
 	}
 
-	res, err := u.db.ExecContext(ctx, string(user.Handle), credentials.String())
+	dbhandle := base64.StdEncoding.EncodeToString(user.Handle)
+	res, err := u.userInsertQuery.ExecContext(ctx, dbhandle, credentials.String())
 	if err != nil {
 		return fmt.Errorf("adding user: %w", err)
 	}

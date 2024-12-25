@@ -110,11 +110,11 @@ func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnR
 	}
 
 	var webauthnSession webauthn.SessionData
-	err = json.Unmarshal(session, &webauthnSession)
+	err = json.Unmarshal(session.Raw, &webauthnSession)
 	if err != nil {
 		return fmt.Errorf("unmarshalling webauthn session: %w", err)
 	}
-
+	
 	tUser := entity.NewUser(webauthnSession.UserID, nil)
 
 	credential, err := a.webauthn.CreateCredential(tUser, webauthnSession, parsedResponse)

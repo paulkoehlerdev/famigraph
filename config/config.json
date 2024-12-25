@@ -13,7 +13,7 @@
     "shutdownTimeout": "1m"
   },
   "webauthn": {
-    "timeouts": {
+    "timeout": {
       "registration": "300s",
       "login": "120s"
     },
@@ -21,7 +21,7 @@
       "id": "famigraph.pkoehler.dev",
       "displayName": "famigraph",
       "allowedOrigins": [
-        "famigraph.pkoehler.dev"
+        "https://famigraph.pkoehler.dev"
       ]
     }
   },
