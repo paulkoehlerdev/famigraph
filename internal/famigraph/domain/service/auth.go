@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/go-webauthn/webauthn/protocol"
@@ -14,10 +15,10 @@ import (
 
 type AuthService interface {
 	GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error)
-	Register(response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error
+	Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error
 
-	GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error)
-	Login(response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error
+	GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error)
+	Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error
 }
 
 type authserviceimpl struct {
@@ -76,7 +77,7 @@ func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistration
 	return challenge, session, nil
 }
 
-func (a *authserviceimpl) Register(response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error {
+func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error {
 	parsedResponse, err := protocol.ParseCredentialCreationResponseBytes(response)
 	if err != nil {
 		return fmt.Errorf("parsing credential creation response: %w", err)
@@ -97,7 +98,7 @@ func (a *authserviceimpl) Register(response value.WebauthnRegistrationChallengeR
 
 	tUser.AddCredential(*credential)
 
-	err = a.userRepo.AddUser(tUser)
+	err = a.userRepo.AddUser(ctx, tUser)
 	if err != nil {
 		return fmt.Errorf("inserting user: %w", err)
 	}
@@ -105,12 +106,12 @@ func (a *authserviceimpl) Register(response value.WebauthnRegistrationChallengeR
 	return nil
 }
 
-func (a *authserviceimpl) GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
+func (a *authserviceimpl) GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (a *authserviceimpl) Login(response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error {
+func (a *authserviceimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error {
 	//TODO implement me
 	panic("implement me")
 }

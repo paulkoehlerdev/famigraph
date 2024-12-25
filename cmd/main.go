@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
-	badgerRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/badger"
+	badgerRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
-	"github.com/paulkoehlerdev/famigraph/internal/libraries/badger"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/logger"
+	"github.com/paulkoehlerdev/famigraph/internal/libraries/sqlite"
 	"github.com/paulkoehlerdev/famigraph/pkg/slices"
 	"github.com/paulkoehlerdev/famigraph/templates"
 	"github.com/samber/do"
@@ -36,7 +36,7 @@ func main() {
 		},
 	})
 
-	do.Provide(injector, badger.NewBadger)
+	do.Provide(injector, sqlite.NewSqlite)
 	do.Provide(injector, templates.NewHtmlTemplates)
 
 	// repositories
