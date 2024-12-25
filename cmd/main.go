@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
-	badgerRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/jwt"
+	sqliteRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/logger"
@@ -40,11 +41,13 @@ func main() {
 	do.Provide(injector, templates.NewHtmlTemplates)
 
 	// repositories
-	do.Provide(injector, badgerRepo.NewUserRepository)
+	do.Provide(injector, sqliteRepo.NewUserRepository)
+	do.Provide(injector, jwt.NewSignerRepository)
 
 	// services
 	do.Provide(injector, service.NewQRCodeService)
 	do.Provide(injector, service.NewAuthService)
+	do.Provide(injector, service.NewSessionService)
 
 	// endpoints
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)

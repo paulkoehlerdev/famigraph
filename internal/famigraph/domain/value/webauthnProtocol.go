@@ -1,8 +1,13 @@
 package value
 
+import "time"
+
 type WebauthnRegistrationChallengeData []byte
 type WebauthnRegistrationChallengeResponseData []byte
-type WebauthnRegistrationSessionData []byte
+type WebauthnRegistrationSessionData struct {
+	Raw    []byte
+	Expiry time.Time
+}
 
 type WebauthnLoginChallengeData []byte
 type WebauthnLoginChallengeResponseData []byte

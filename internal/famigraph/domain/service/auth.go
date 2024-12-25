@@ -11,6 +11,7 @@ import (
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/repository"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/value"
 	"github.com/samber/do"
+	"time"
 )
 
 type AuthService interface {
@@ -32,11 +33,33 @@ func NewAuthService(injector *do.Injector) (AuthService, error) {
 		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
+	loginTimeout, err := time.ParseDuration(config.Webauthn.Timeout.Login)
+	if err != nil {
+		return nil, fmt.Errorf("parsing webauthn login timeout: %w", err)
+	}
+
+	registrationTimeout, err := time.ParseDuration(config.Webauthn.Timeout.Registration)
+	if err != nil {
+		return nil, fmt.Errorf("parsing webauthn registration timeout: %w", err)
+	}
+
 	webauthn, err := webauthn.New(&webauthn.Config{
 		RPID:                  config.Webauthn.RelyingParty.ID,
 		RPDisplayName:         config.Webauthn.RelyingParty.DisplayName,
 		RPOrigins:             config.Webauthn.RelyingParty.AllowedOrigins,
 		AttestationPreference: protocol.PreferNoAttestation,
+		Timeouts: webauthn.TimeoutsConfig{
+			Login: webauthn.TimeoutConfig{
+				Enforce:    true,
+				Timeout:    loginTimeout,
+				TimeoutUVD: loginTimeout,
+			},
+			Registration: webauthn.TimeoutConfig{
+				Enforce:    true,
+				Timeout:    registrationTimeout,
+				TimeoutUVD: registrationTimeout,
+			},
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("creating webauthn instance: %w", err)
@@ -56,25 +79,28 @@ func NewAuthService(injector *do.Injector) (AuthService, error) {
 func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error) {
 	user, err := entity.NewUserWithRandomID()
 	if err != nil {
-		return nil, nil, fmt.Errorf("creating new anonymous user: %w", err)
+		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("creating new anonymous user: %w", err)
 	}
 
 	options, webauthnSession, err := a.webauthn.BeginRegistration(user)
 	if err != nil {
-		return nil, nil, fmt.Errorf("starting usernameless registration: %w", err)
+		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("starting usernameless registration: %w", err)
 	}
 
 	challenge, err := json.Marshal(options.Response)
 	if err != nil {
-		return nil, nil, fmt.Errorf("marshalling registration challenge: %w", err)
+		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("marshalling registration challenge: %w", err)
 	}
 
 	session, err := json.Marshal(webauthnSession)
 	if err != nil {
-		return nil, nil, fmt.Errorf("marshalling registraion webauthnSession: %w", err)
+		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("marshalling registraion webauthnSession: %w", err)
 	}
 
-	return challenge, session, nil
+	return challenge, value.WebauthnRegistrationSessionData{
+		Raw:    session,
+		Expiry: webauthnSession.Expires,
+	}, nil
 }
 
 func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error {

@@ -13,12 +13,22 @@
     "shutdownTimeout": "1m"
   },
   "webauthn": {
+    "timeouts": {
+      "registration": "300s",
+      "login": "120s"
+    },
     "relyingParty": {
       "id": "famigraph.pkoehler.dev",
       "displayName": "famigraph",
       "allowedOrigins": [
         "famigraph.pkoehler.dev"
       ]
+    }
+  },
+  "session": {
+    "cookiePrefix": "famigraph",
+    "jwt": {
+      "secret": "36cde562e0bd29635e5dc06ca7f32e7f70db2f4898c28741122cb14961a9cc81"
     }
   },
   "database": {

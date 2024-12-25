@@ -24,12 +24,22 @@ type Config struct {
 		ShutdownTimeout string `json:"shutdownTimeout"`
 	} `json:"server"`
 	Webauthn struct {
+		Timeout struct {
+			Registration string `json:"registration"`
+			Login        string `json:"login"`
+		} `json:"timeout"`
 		RelyingParty struct {
 			ID             string   `json:"id"`
 			DisplayName    string   `json:"displayName"`
 			AllowedOrigins []string `json:"allowedOrigins"`
 		} `json:"relyingParty"`
 	} `json:"webauthn"`
+	Session struct {
+		CookiePrefix string `json:"cookiePrefix"`
+		JWT          struct {
+			Secret []byte `json:"secret"`
+		} `json:"jwt"`
+	} `json:"session"`
 	Database struct {
 		Path string `json:"path"`
 	} `json:"database"`
