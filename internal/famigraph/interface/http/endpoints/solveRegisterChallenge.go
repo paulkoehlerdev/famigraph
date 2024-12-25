@@ -39,10 +39,18 @@ func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
 			return
 		}
 
-		err = authService.Register(request.Context(), challengeResponse, session)
+		handle, err := authService.Register(request.Context(), challengeResponse, session)
 		if err != nil {
 			http.Error(writer, fmt.Sprintf("error registering user: %s", err.Error()), http.StatusBadRequest)
 		}
+
+		cookie, err := sessionService.CreateSession(handle)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(writer, cookie)
 
 		writer.Header().Set("Content-Type", "text/plain")
 	}), nil

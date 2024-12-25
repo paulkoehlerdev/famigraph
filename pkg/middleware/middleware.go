@@ -13,7 +13,7 @@ func Stack(middlewares ...Middleware) Middleware {
 	return func(next http.Handler) http.Handler {
 		out := next
 		for _, m := range middlewares {
-			out = m(next)
+			out = m(out)
 		}
 		return out
 	}

@@ -8,6 +8,7 @@ import (
 	sqliteRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/middlewares"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/logger"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/sqlite"
 	"github.com/paulkoehlerdev/famigraph/pkg/slices"
@@ -49,7 +50,11 @@ func main() {
 	do.Provide(injector, service.NewAuthService)
 	do.Provide(injector, service.NewSessionService)
 
+	// middlewares
+	do.ProvideNamed(injector, middlewares.AuthName, middlewares.NewAuth)
+
 	// endpoints
+	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
 	do.ProvideNamed(injector, endpoints.RegisterName, endpoints.NewRegister)
 	do.ProvideNamed(injector, endpoints.ApiCreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)

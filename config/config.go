@@ -35,6 +35,7 @@ type Config struct {
 		} `json:"relyingParty"`
 	} `json:"webauthn"`
 	Session struct {
+		Expiry       string `json:"expiry"`
 		CookiePrefix string `json:"cookiePrefix"`
 		JWT          struct {
 			Secret string `json:"secret"`

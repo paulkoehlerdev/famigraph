@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/middlewares"
 	"github.com/paulkoehlerdev/famigraph/pkg/middleware"
 	"github.com/samber/do"
 	"log/slog"
@@ -56,6 +57,12 @@ func NewServer(injector *do.Injector) (*Server, error) {
 
 	mux := http.NewServeMux()
 
+	indexEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.IndexName)
+	if err != nil {
+		return nil, fmt.Errorf("getting index endpoint: %w", err)
+	}
+	mux.Handle("GET /", indexEndpoint)
+
 	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
 	if err != nil {
 		return nil, fmt.Errorf("getting connect endpoint: %w", err)
@@ -80,8 +87,14 @@ func NewServer(injector *do.Injector) (*Server, error) {
 	}
 	mux.Handle("POST /register/challenge", solveRegisterChallengeEndpoint)
 
+	authMiddleware, err := do.InvokeNamed[middleware.Middleware](injector, middlewares.AuthName)
+	if err != nil {
+		return nil, fmt.Errorf("getting auth middleware: %w", err)
+	}
+
 	handler := middleware.Stack(
 		middleware.Logging(logger),
+		authMiddleware,
 	)(mux)
 
 	shutdownTimeout, err := time.ParseDuration(config.Server.ShutdownTimeout)

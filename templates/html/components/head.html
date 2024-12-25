@@ -5,51 +5,6 @@
 
     <title>famigraph</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            min-width: 100vw;
-            min-height: 100vh;
-            background-color: white;
-        }
-
-        h1 {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 0.75em;
-        }
-
-        /* Dark mode styles */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: black;
-                color: white;
-            }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        button {
-            font-size: 14px;
-            padding: 0.8em 3em;
-            font-weight: bold;
-            background-color: #0271c2;
-            color: #fff;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #015fa4;
-        }
-    </style>
+    <style>{{ template "styles/styles" }}</style>
 </head>
 {{ end }}

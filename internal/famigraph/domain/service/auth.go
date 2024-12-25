@@ -16,7 +16,7 @@ import (
 
 type AuthService interface {
 	GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error)
-	Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error
+	Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error)
 
 	GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error)
 	Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error
@@ -103,33 +103,33 @@ func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistration
 	}, nil
 }
 
-func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) error {
+func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error) {
 	parsedResponse, err := protocol.ParseCredentialCreationResponseBytes(response)
 	if err != nil {
-		return fmt.Errorf("parsing credential creation response: %w", err)
+		return nil, fmt.Errorf("parsing credential creation response: %w", err)
 	}
 
 	var webauthnSession webauthn.SessionData
 	err = json.Unmarshal(session.Raw, &webauthnSession)
 	if err != nil {
-		return fmt.Errorf("unmarshalling webauthn session: %w", err)
+		return nil, fmt.Errorf("unmarshalling webauthn session: %w", err)
 	}
-	
+
 	tUser := entity.NewUser(webauthnSession.UserID, nil)
 
 	credential, err := a.webauthn.CreateCredential(tUser, webauthnSession, parsedResponse)
 	if err != nil {
-		return fmt.Errorf("parsing credential: %w", err)
+		return nil, fmt.Errorf("parsing credential: %w", err)
 	}
 
 	tUser.AddCredential(*credential)
 
 	err = a.userRepo.AddUser(ctx, tUser)
 	if err != nil {
-		return fmt.Errorf("inserting user: %w", err)
+		return nil, fmt.Errorf("inserting user: %w", err)
 	}
 
-	return nil
+	return tUser.Handle, nil
 }
 
 func (a *authserviceimpl) GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
