@@ -75,13 +75,13 @@ func NewServer(injector *do.Injector) (*Server, error) {
 	}
 	mux.Handle("GET /register", registerEndpoint)
 
-	createRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ApiCreateRegisterChallengeName)
+	createRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APICreateRegisterChallengeName)
 	if err != nil {
 		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
 	}
 	mux.Handle("GET /register/challenge", createRegisterChallengeEndpoint)
 
-	solveRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ApiSolveRegisterChallengeName)
+	solveRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APISolveRegisterChallengeName)
 	if err != nil {
 		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
 	}

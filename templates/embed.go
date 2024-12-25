@@ -10,7 +10,7 @@ import (
 //go:embed html/*
 var HTMLTemplates embed.FS
 
-func NewHtmlTemplates(_ *do.Injector) (*template.Template, error) {
+func NewHTMLTemplates(_ *do.Injector) (*template.Template, error) {
 	template, err := template.ParseFS(HTMLTemplates, "html/**/*")
 	if err != nil {
 		return nil, fmt.Errorf("parsing html templates: %w", err)

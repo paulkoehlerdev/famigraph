@@ -39,7 +39,7 @@ func main() {
 	})
 
 	do.Provide(injector, sqlite.NewSqlite)
-	do.Provide(injector, templates.NewHtmlTemplates)
+	do.Provide(injector, templates.NewHTMLTemplates)
 
 	// repositories
 	do.Provide(injector, sqliteRepo.NewUserRepository)
@@ -57,8 +57,8 @@ func main() {
 	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
 	do.ProvideNamed(injector, endpoints.RegisterName, endpoints.NewRegister)
-	do.ProvideNamed(injector, endpoints.ApiCreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)
-	do.ProvideNamed(injector, endpoints.ApiSolveRegisterChallengeName, endpoints.NewSolveRegisterChallenge)
+	do.ProvideNamed(injector, endpoints.APICreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)
+	do.ProvideNamed(injector, endpoints.APISolveRegisterChallengeName, endpoints.NewSolveRegisterChallenge)
 
 	do.Provide(injector, http.NewServer)
 

@@ -94,7 +94,7 @@ func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistration
 
 	session, err := json.Marshal(webauthnSession)
 	if err != nil {
-		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("marshalling registraion webauthnSession: %w", err)
+		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("marshalling registration webauthnSession: %w", err)
 	}
 
 	return challenge, value.WebauthnRegistrationSessionData{
@@ -133,11 +133,11 @@ func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnR
 }
 
 func (a *authserviceimpl) GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (a *authserviceimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }

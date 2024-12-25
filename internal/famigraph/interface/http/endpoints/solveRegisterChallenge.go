@@ -5,7 +5,6 @@ import (
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/samber/do"
 	"io"
-	"log/slog"
 	"net/http"
 )
 
@@ -19,12 +18,6 @@ func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getting auth service: %w", err)
 	}
-
-	logger, err := do.Invoke[*slog.Logger](injector)
-	if err != nil {
-		return nil, fmt.Errorf("getting logger: %w", err)
-	}
-	logger = logger.With("service", "endpoint", "endpoint", ApiSolveRegisterChallengeName)
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		session, err := sessionService.GetRegistrationSession(request.Cookies())

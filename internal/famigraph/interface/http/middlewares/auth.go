@@ -5,18 +5,11 @@ import (
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/paulkoehlerdev/famigraph/pkg/middleware"
 	"github.com/samber/do"
-	"log/slog"
 	"net/http"
 	"strings"
 )
 
 func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
-	logger, err := do.Invoke[*slog.Logger](injector)
-	if err != nil {
-		return nil, fmt.Errorf("getting logger: %w", err)
-	}
-	logger = logger.With("service", "middleware", "middleware", AuthName)
-
 	sessionService, err := do.Invoke[service.SessionService](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting auth service: %w", err)

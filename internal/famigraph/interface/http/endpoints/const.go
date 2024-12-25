@@ -4,6 +4,6 @@ const (
 	IndexName                      = "index"
 	ConnectName                    = "getConnect"
 	RegisterName                   = "getRegister"
-	ApiCreateRegisterChallengeName = "getRegisterChallenge"
-	ApiSolveRegisterChallengeName  = "postRegisterChallenge"
+	APICreateRegisterChallengeName = "getRegisterChallenge"
+	APISolveRegisterChallengeName  = "postRegisterChallenge"
 )
