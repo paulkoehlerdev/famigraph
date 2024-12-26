@@ -123,6 +123,12 @@ func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
 	}
 	mux.Handle("GET /connect", connectEndpoint)
 
+	handshakeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.HandshakeName)
+	if err != nil {
+		return fmt.Errorf("getting handshake endpoint: %w", err)
+	}
+	mux.Handle("GET /handshake", handshakeEndpoint)
+
 	loginEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.LoginName)
 	if err != nil {
 		return fmt.Errorf("getting login endpoint: %w", err)

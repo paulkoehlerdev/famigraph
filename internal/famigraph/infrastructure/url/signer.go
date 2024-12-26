@@ -39,9 +39,15 @@ func NewURLSignerRepository(injector *do.Injector) (repository.URLSigner, error)
 func (s SignerRepositoryImpl) Sign(url *url.URL, expiry time.Time) (string, error) {
 	time := int(expiry.UnixMilli() / 1000)
 
+	url.Scheme = ""
+	url.Host = ""
+
 	query := url.Query()
 	query.Set("exp", strconv.Itoa(time))
 	query.Set("sig", EmptySignature)
+	url.RawQuery = query.Encode()
+
+	query = url.Query()
 	query.Set("sig", s.sign(url.String()))
 	url.RawQuery = query.Encode()
 
@@ -51,7 +57,10 @@ func (s SignerRepositoryImpl) Sign(url *url.URL, expiry time.Time) (string, erro
 func (s SignerRepositoryImpl) Validate(signedUrl *url.URL) (time.Time, error) {
 	signature := signedUrl.Query().Get("sig")
 
-	signedUrl.Query().Set("sig", EmptySignature)
+	query := signedUrl.Query()
+	query.Set("sig", EmptySignature)
+	signedUrl.RawQuery = query.Encode()
+
 	if signature != s.sign(signedUrl.String()) {
 		return time.Unix(0, 0), fmt.Errorf("invalid signature")
 	}

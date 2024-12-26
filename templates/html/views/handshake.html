@@ -1,0 +1,28 @@
+{{ define "views/handshake/success" }}
+<html lang="en">
+{{ template "components/head" }}
+<head>
+</head>
+<body>
+<div class="container">
+    <h1>famigraph</h1>
+    <h2>CONNECTION SUCCEDED</h2>
+</div>
+</body>
+</html>
+{{ end }}
+
+{{ define "views/handshake/failed" }}
+<html lang="en">
+{{ template "components/head" }}
+<head>
+</head>
+<body>
+<div class="container">
+    <h1>famigraph</h1>
+    <h2>CONNECTION FAILED</h2>
+    <p>Maybe you are already connected?</p>
+</div>
+</body>
+</html>
+{{ end }}

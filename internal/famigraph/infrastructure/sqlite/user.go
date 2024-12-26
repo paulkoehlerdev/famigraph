@@ -15,9 +15,10 @@ import (
 )
 
 type UserRepositoryImpl struct {
-	db              *sql.DB
-	userGetQuery    *sql.Stmt
-	userInsertQuery *sql.Stmt
+	db                    *sql.DB
+	userGetQuery          *sql.Stmt
+	userInsertQuery       *sql.Stmt
+	connectionInsertQuery *sql.Stmt
 }
 
 func NewUserRepository(injector *do.Injector) (repository.User, error) {
@@ -105,6 +106,43 @@ func (u UserRepositoryImpl) AddUser(ctx context.Context, user *entity.User) erro
 	}
 
 	res, err := u.userInsertQuery.ExecContext(ctx, user.Handle.String(), credentials.String())
+	if err != nil {
+		return fmt.Errorf("adding user: %w", err)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("getting rows affected: %w", err)
+	}
+
+	if n != 1 {
+		return fmt.Errorf("expected 1 row affected, got %d", n)
+	}
+
+	return nil
+}
+
+func (u UserRepositoryImpl) AddConnection(ctx context.Context, handleA entity.UserHandle, handleB entity.UserHandle, otc string) error {
+	if u.connectionInsertQuery == nil {
+		var err error
+		u.connectionInsertQuery, err = u.db.Prepare("INSERT INTO connections (user1_handle, user2_handle, user1_connection_otc) VALUES (?, ?, ?)")
+		if err != nil {
+			return fmt.Errorf("preparing query: %w", err)
+		}
+	}
+
+	handleAStr, handleBStr := handleA.String(), handleB.String()
+
+	if handleAStr == handleBStr {
+		return fmt.Errorf("cannot add connection to same user")
+	}
+
+	// make sure connection can only be inserted once :)
+	if handleAStr < handleBStr {
+		handleAStr, handleBStr = handleBStr, handleAStr
+	}
+
+	res, err := u.connectionInsertQuery.ExecContext(ctx, handleAStr, handleBStr, otc)
 	if err != nil {
 		return fmt.Errorf("adding user: %w", err)
 	}

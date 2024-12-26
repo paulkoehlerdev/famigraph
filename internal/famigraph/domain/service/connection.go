@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
@@ -10,19 +11,30 @@ import (
 	"time"
 )
 
+const (
+	QueryKeyHandle = "handle"
+	QueryKeyOTC    = "otc"
+)
+
 type Connection interface {
 	GetHandshakeURL(handle entity.UserHandle) (string, error)
-	CompleteHandshake(url *url.URL) error
+	CompleteHandshake(ctx context.Context, handle entity.UserHandle, url *url.URL) error
 }
 
 type connectionImpl struct {
 	urlSigner repository.URLSigner
+	userRepo  repository.User
 	otcGen    repository.OTC
 	baseURL   string
 	urlExpiry time.Duration
 }
 
 func NewConnectionService(injector *do.Injector) (Connection, error) {
+	config, err := do.Invoke[config.Config](injector)
+	if err != nil {
+		return nil, fmt.Errorf("getting config: %w", err)
+	}
+
 	urlSigner, err := do.Invoke[repository.URLSigner](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting URLSigner: %w", err)
@@ -33,9 +45,9 @@ func NewConnectionService(injector *do.Injector) (Connection, error) {
 		return nil, fmt.Errorf("getting OTC: %w", err)
 	}
 
-	config, err := do.Invoke[config.Config](injector)
+	userRepo, err := do.Invoke[repository.User](injector)
 	if err != nil {
-		return nil, fmt.Errorf("getting config: %w", err)
+		return nil, fmt.Errorf("getting user repository: %w", err)
 	}
 
 	urlExpiry, err := time.ParseDuration(config.Connect.Expiry)
@@ -45,6 +57,7 @@ func NewConnectionService(injector *do.Injector) (Connection, error) {
 
 	return connectionImpl{
 		urlSigner: urlSigner,
+		userRepo:  userRepo,
 		otcGen:    otcGen,
 		baseURL:   fmt.Sprintf("https://%s/handshake", config.Server.Domain),
 		urlExpiry: urlExpiry,
@@ -52,7 +65,7 @@ func NewConnectionService(injector *do.Injector) (Connection, error) {
 }
 
 func (c connectionImpl) GetHandshakeURL(handle entity.UserHandle) (string, error) {
-	connectURL, err := url.Parse(c.baseURL)
+	handshakeURL, err := url.Parse(c.baseURL)
 	if err != nil {
 		return "", fmt.Errorf("parsing handshake URL: %w", err)
 	}
@@ -62,12 +75,12 @@ func (c connectionImpl) GetHandshakeURL(handle entity.UserHandle) (string, error
 		return "", fmt.Errorf("generating OTC: %w", err)
 	}
 
-	query := connectURL.Query()
-	query.Add("handle", handle.String())
-	query.Add("otc", otc)
-	connectURL.RawQuery = query.Encode()
+	query := handshakeURL.Query()
+	query.Add(QueryKeyHandle, handle.String())
+	query.Add(QueryKeyOTC, otc)
+	handshakeURL.RawQuery = query.Encode()
 
-	urlStr, err := c.urlSigner.Sign(connectURL, time.Now().Add(c.urlExpiry))
+	urlStr, err := c.urlSigner.Sign(handshakeURL, time.Now().Add(c.urlExpiry))
 	if err != nil {
 		return "", fmt.Errorf("signing handshake URL: %w", err)
 	}
@@ -75,7 +88,22 @@ func (c connectionImpl) GetHandshakeURL(handle entity.UserHandle) (string, error
 	return urlStr, nil
 }
 
-func (c connectionImpl) CompleteHandshake(url *url.URL) error {
-	//TODO implement me
-	panic("implement me")
+func (c connectionImpl) CompleteHandshake(ctx context.Context, handleB entity.UserHandle, url *url.URL) error {
+	_, err := c.urlSigner.Validate(url)
+	if err != nil {
+		return fmt.Errorf("validating handshake URL: %w", err)
+	}
+
+	handleA, err := entity.HandleFromString(url.Query().Get(QueryKeyHandle))
+	if err != nil {
+		return fmt.Errorf("parsing handshake URL handle: %w", err)
+	}
+	otc := url.Query().Get(QueryKeyOTC)
+
+	err = c.userRepo.AddConnection(ctx, handleA, handleB, otc)
+	if err != nil {
+		return fmt.Errorf("adding connection: %w", err)
+	}
+
+	return nil
 }

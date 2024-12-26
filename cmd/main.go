@@ -62,6 +62,7 @@ func main() {
 	do.ProvideNamed(injector, endpoints.FontsName, endpoints.NewFonts)
 	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
+	do.ProvideNamed(injector, endpoints.HandshakeName, endpoints.NewHandshake)
 
 	do.ProvideNamed(injector, endpoints.LoginName, endpoints.NewLogin)
 	do.ProvideNamed(injector, endpoints.APICreateLoginChallengeName, endpoints.NewCreateLoginChallenge)

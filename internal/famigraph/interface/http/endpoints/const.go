@@ -3,8 +3,9 @@ package endpoints
 const (
 	FontsName = "static"
 
-	IndexName   = "index"
-	ConnectName = "getConnect"
+	IndexName     = "index"
+	ConnectName   = "getConnect"
+	HandshakeName = "getHandshake"
 
 	LoginName                   = "getLogin"
 	APICreateLoginChallengeName = "getLoginChallenge"
