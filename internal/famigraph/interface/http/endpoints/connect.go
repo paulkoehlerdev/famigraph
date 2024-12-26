@@ -2,24 +2,14 @@ package endpoints
 
 import (
 	"fmt"
-	"github.com/paulkoehlerdev/famigraph/config"
-	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/repository"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/samber/do"
 	"html/template"
 	"log/slog"
 	"net/http"
-	"net/url"
-	"strconv"
-	"time"
 )
 
 func NewConnect(injector *do.Injector) (http.Handler, error) {
-	config, err := do.Invoke[config.Config](injector)
-	if err != nil {
-		return nil, fmt.Errorf("getting config: %w", err)
-	}
-
 	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
@@ -30,19 +20,14 @@ func NewConnect(injector *do.Injector) (http.Handler, error) {
 		return nil, fmt.Errorf("getting qrcode service: %w", err)
 	}
 
+	connectionService, err := do.Invoke[service.Connection](injector)
+	if err != nil {
+		return nil, fmt.Errorf("getting connection service: %w", err)
+	}
+
 	templates, err := do.Invoke[*template.Template](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting html/templates: %w", err)
-	}
-
-	urlSigner, err := do.Invoke[repository.URLSigner](injector)
-	if err != nil {
-		return nil, fmt.Errorf("getting url signer: %w", err)
-	}
-
-	urlExpiry, err := time.ParseDuration(config.Connect.Expiry)
-	if err != nil {
-		return nil, fmt.Errorf("parsing url expiry: %w", err)
 	}
 
 	logger, err := do.Invoke[*slog.Logger](injector)
@@ -58,22 +43,10 @@ func NewConnect(injector *do.Injector) (http.Handler, error) {
 			return
 		}
 
-		connectURL, err := url.Parse(fmt.Sprintf("https://%s/handshake", config.Server.Domain))
+		urlStr, err := connectionService.GetHandshakeURL(handle)
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			logger.Error("error handling request", "error", err, "code", http.StatusInternalServerError)
-			return
-		}
-
-		query := request.URL.Query()
-		query.Add("handle", handle.String())
-		query.Add("otc", strconv.Itoa(123456))
-		connectURL.RawQuery = query.Encode()
-
-		urlStr, err := urlSigner.Sign(connectURL, time.Now().Add(urlExpiry))
-		if err != nil {
-			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			logger.Error("error signing request", "error", err, "code", http.StatusInternalServerError)
 			return
 		}
 

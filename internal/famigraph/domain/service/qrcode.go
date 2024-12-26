@@ -6,6 +6,7 @@ import (
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
 	"github.com/samber/do"
 	"github.com/skip2/go-qrcode"
+	"image/color"
 )
 
 const (
@@ -20,6 +21,22 @@ type QRCode interface {
 	Encode(text string) (entity.QRCode, error)
 }
 
+// ForegroundColor is based on 38c3 accent-a color: #B2AAFF
+var ForegroundColor = color.RGBA{
+	R: 0xB2,
+	G: 0xAA,
+	B: 0xFF,
+	A: 0xFF,
+}
+
+// BackgroundColor is based on 38c3 background color: #0F000A
+var BackgroundColor = color.RGBA{
+	R: 0x0F,
+	G: 0x00,
+	B: 0x0A,
+	A: 0xFF,
+}
+
 type qrcodeserviceimpl struct {
 }
 
@@ -28,6 +45,9 @@ func (i qrcodeserviceimpl) Encode(text string) (entity.QRCode, error) {
 	if err != nil {
 		return "", fmt.Errorf("creating qrcode: %w", err)
 	}
+
+	code.BackgroundColor = BackgroundColor
+	code.ForegroundColor = ForegroundColor
 
 	pngBytes, err := code.PNG(qrCodePNGResolution)
 	if err != nil {

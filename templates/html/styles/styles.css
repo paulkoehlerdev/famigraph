@@ -6,10 +6,11 @@
 }
 
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'uncut-sans';
+    color: var(--color-accent-a);
     min-width: 100vw;
     min-height: 100vh;
-    background-color: white;
+    background-color: var(--color-background);
 }
 
 .container {
@@ -20,24 +21,38 @@ body {
     height: 100vh;
 }
 
-h1, h1, h3 {
-    font-weight: bold;
-    margin-bottom: 0.75em;
+h1 {
+    color: var(--color-primary);
+    font-family: 'pilowlava';
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: black;
-        color: white;
-    }
+h2 {
+    color: var(--color-primary);
+    font-family: 'space-grotesk';
+}
+
+h3 {
+    color: var(--color-accent-a);
+    font-family: 'space-grotesk';
+}
+
+code {
+    font-family: 'space-mono';
+}
+
+a {
+    color: var(--color-highlight)
+}
+
+h1, h1, h3 {
+    margin-bottom: 0.75em;
 }
 
 
 .error {
     margin: 1em;
     padding: 1em;
-    border: 3px solid #0271c2;
+    border: 3px solid var(--color-primary);
     border-radius: 5px;
 }
 
@@ -51,22 +66,17 @@ button, a.button {
     font-size: 14px;
     padding: 0.8em 3em;
     font-weight: bold;
-    background-color: #0271c2;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-highlight);
     border-radius: 5px;
-    border: 2px solid #0271c2;
+    border: 2px solid var(--color-primary);
     cursor: pointer;
 }
 
 .btn-secondary {
     background-color: transparent !important;
-    border: 2px solid #0271c2 !important;
-    color: #0271c2 !important;
-}
-
-button:hover, a.button:hover {
-    background-color: #015fa4;
-    border-color: #015fa4;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
 }
 
 {{ end }}

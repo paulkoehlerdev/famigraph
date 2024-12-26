@@ -111,6 +111,12 @@ func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
 	}
 	mux.Handle("GET /", indexEndpoint)
 
+	fontsEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.FontsName)
+	if err != nil {
+		return fmt.Errorf("getting static fonts endpoint: %w", err)
+	}
+	mux.Handle("GET /fonts/", fontsEndpoint)
+
 	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
 	if err != nil {
 		return fmt.Errorf("getting connect endpoint: %w", err)

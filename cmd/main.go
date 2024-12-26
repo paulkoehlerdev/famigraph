@@ -5,6 +5,7 @@ import (
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/jwt"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/random"
 	sqliteRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/url"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
@@ -46,16 +47,19 @@ func main() {
 	do.Provide(injector, sqliteRepo.NewUserRepository)
 	do.Provide(injector, jwt.NewSignerRepository)
 	do.Provide(injector, url.NewURLSignerRepository)
+	do.Provide(injector, random.NewOTC)
 
 	// services
 	do.Provide(injector, service.NewQRCodeService)
 	do.Provide(injector, service.NewAuthService)
 	do.Provide(injector, service.NewSessionService)
+	do.Provide(injector, service.NewConnectionService)
 
 	// middlewares
 	do.ProvideNamed(injector, middlewares.AuthName, middlewares.NewAuth)
 
 	// endpoints
+	do.ProvideNamed(injector, endpoints.FontsName, endpoints.NewFonts)
 	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
 
