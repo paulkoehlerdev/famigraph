@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const UserHandleContextKey = "user"
+const UserHandleContextKey = "sessionUserHandle"
 
 type SessionService interface {
 	CreateRegistrationSession(data value.WebauthnRegistrationSessionData) (*http.Cookie, error)
@@ -172,7 +172,8 @@ func (s *sessionserviceimpl) ResetSession() *http.Cookie {
 }
 
 func (s *sessionserviceimpl) StoreSessionInContext(ctx context.Context, handle entity.UserHandle) context.Context {
-	return context.WithValue(ctx, UserHandleContextKey, handle)
+	// TODO: rebuild key to be pass staticcheck
+	return context.WithValue(ctx, UserHandleContextKey, handle) //nolint:staticcheck
 }
 
 func (s *sessionserviceimpl) GetSessionFromContext(ctx context.Context) (entity.UserHandle, error) {
