@@ -11,4 +11,7 @@ type WebauthnRegistrationSessionData struct {
 
 type WebauthnLoginChallengeData []byte
 type WebauthnLoginChallengeResponseData []byte
-type WebauthnLoginSessionData []byte
+type WebauthnLoginSessionData struct {
+	Raw    []byte
+	Expiry time.Time
+}

@@ -6,5 +6,5 @@ import (
 )
 
 func NewRegister(injector *do.Injector) (http.Handler, error) {
-	return NewViewEndpoint(RegisterName, "views/register")(injector)
+	return newViewEndpoint(RegisterName, "views/register", noDataCallback)(injector)
 }

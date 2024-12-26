@@ -1,4 +1,4 @@
-{{ define "views/register" }}
+{{ define "views/login" }}
 <html lang="en">
 {{ template "components/head" }}
 <head>
@@ -6,20 +6,20 @@
 <body>
 <div class="container">
     <h1>famigraph</h1>
-    <h2>REGISTRATION</h2>
+    <h2>LOGIN</h2>
 
     <div class="error hidden">
-        <h3>ERROR</h1>
+        <h3>ERROR</h3>
         <p class="error__message"></p>
         <p class="error__details"></p>
 
-        <button onclick="register()">try again</button>
-        <a href="/login" class="button btn-secondary">login instead</a>
+        <button onclick="login()">try again</button>
+        <a href="/register" class="button btn-secondary">register instead</a>
     </div>
 
     <script>{{ template "js/base64" }}</script>
     <script>{{ template "js/util" }}</script>
-    <script>{{ template "js/register" }}</script>
+    <script>{{ template "js/login" }}</script>
 </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
@@ -11,13 +12,24 @@ import (
 	"time"
 )
 
+const UserHandleContextKey = "user"
+
 type SessionService interface {
 	CreateRegistrationSession(data value.WebauthnRegistrationSessionData) (*http.Cookie, error)
 	GetRegistrationSession(cookies []*http.Cookie) (value.WebauthnRegistrationSessionData, error)
+	ResetRegistrationSession() *http.Cookie
+
+	CreateLoginSession(data value.WebauthnLoginSessionData) (*http.Cookie, error)
+	GetLoginSession(cookies []*http.Cookie) (value.WebauthnLoginSessionData, error)
+	ResetLoginSession() *http.Cookie
 
 	CreateSession(data entity.UserHandle) (*http.Cookie, error)
-	RefreshSession(cookies []*http.Cookie) (*http.Cookie, error)
+	RefreshSession(cookies []*http.Cookie) (*http.Cookie, entity.UserHandle, error)
 	GetSession(cookies []*http.Cookie) (entity.UserHandle, error)
+	ResetSession() *http.Cookie
+
+	StoreSessionInContext(ctx context.Context, handle entity.UserHandle) context.Context
+	GetSessionFromContext(ctx context.Context) (entity.UserHandle, error)
 }
 
 type sessionserviceimpl struct {
@@ -83,6 +95,40 @@ func (s *sessionserviceimpl) GetRegistrationSession(cookies []*http.Cookie) (val
 	}, nil
 }
 
+func (s *sessionserviceimpl) ResetRegistrationSession() *http.Cookie {
+	return s.createInvalidateCookie(RegistrationSessionCookieName)
+}
+
+func (s *sessionserviceimpl) CreateLoginSession(data value.WebauthnLoginSessionData) (*http.Cookie, error) {
+	value, err := s.signer.Sign(data.Raw, data.Expiry)
+	if err != nil {
+		return nil, fmt.Errorf("signing: %w", err)
+	}
+
+	return s.createCookie(LoginSessionCookieName, value, data.Expiry), nil
+}
+
+func (s *sessionserviceimpl) GetLoginSession(cookies []*http.Cookie) (value.WebauthnLoginSessionData, error) {
+	cookie, err := s.getCookieByName(LoginSessionCookieName, cookies)
+	if err != nil {
+		return value.WebauthnLoginSessionData{}, fmt.Errorf("getting cookie: %w", err)
+	}
+
+	data, expiry, err := s.signer.Validate(cookie.Value)
+	if err != nil {
+		return value.WebauthnLoginSessionData{}, fmt.Errorf("validating cookie: %w", err)
+	}
+
+	return value.WebauthnLoginSessionData{
+		Raw:    data,
+		Expiry: expiry,
+	}, nil
+}
+
+func (s *sessionserviceimpl) ResetLoginSession() *http.Cookie {
+	return s.createInvalidateCookie(LoginSessionCookieName)
+}
+
 func (s *sessionserviceimpl) CreateSession(data entity.UserHandle) (*http.Cookie, error) {
 	expiry := time.Now().Add(s.expiry)
 	value, err := s.signer.Sign(data, expiry)
@@ -93,18 +139,18 @@ func (s *sessionserviceimpl) CreateSession(data entity.UserHandle) (*http.Cookie
 	return s.createCookie(SessionCookieName, value, expiry), nil
 }
 
-func (s *sessionserviceimpl) RefreshSession(cookies []*http.Cookie) (*http.Cookie, error) {
+func (s *sessionserviceimpl) RefreshSession(cookies []*http.Cookie) (*http.Cookie, entity.UserHandle, error) {
 	handle, err := s.GetSession(cookies)
 	if err != nil {
-		return s.createInvalidateCookie(SessionCookieName), fmt.Errorf("no session")
+		return s.createInvalidateCookie(SessionCookieName), nil, fmt.Errorf("no session")
 	}
 
 	cookie, err := s.CreateSession(handle)
 	if err != nil {
-		return s.createInvalidateCookie(SessionCookieName), fmt.Errorf("failed to create session: %w", err)
+		return s.createInvalidateCookie(SessionCookieName), nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	return cookie, nil
+	return cookie, handle, nil
 }
 
 func (s *sessionserviceimpl) GetSession(cookies []*http.Cookie) (entity.UserHandle, error) {
@@ -119,6 +165,23 @@ func (s *sessionserviceimpl) GetSession(cookies []*http.Cookie) (entity.UserHand
 	}
 
 	return data, nil
+}
+
+func (s *sessionserviceimpl) ResetSession() *http.Cookie {
+	return s.createInvalidateCookie(SessionCookieName)
+}
+
+func (s *sessionserviceimpl) StoreSessionInContext(ctx context.Context, handle entity.UserHandle) context.Context {
+	return context.WithValue(ctx, UserHandleContextKey, handle)
+}
+
+func (s *sessionserviceimpl) GetSessionFromContext(ctx context.Context) (entity.UserHandle, error) {
+	handle, ok := ctx.Value(UserHandleContextKey).(entity.UserHandle)
+	if !ok {
+		return nil, fmt.Errorf("no user handle found")
+	}
+
+	return handle, nil
 }
 
 func (s *sessionserviceimpl) getCookieByName(name string, cookies []*http.Cookie) (*http.Cookie, error) {
@@ -151,5 +214,5 @@ func (s *sessionserviceimpl) createCookie(name string, value string, expires tim
 }
 
 func (s *sessionserviceimpl) createInvalidateCookie(name string) *http.Cookie {
-	return s.createCookie(name, "", time.Time{})
+	return s.createCookie(name, "", time.Unix(0, 0))
 }

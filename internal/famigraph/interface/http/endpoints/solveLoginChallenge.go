@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
+func NewSolveLoginChallenge(injector *do.Injector) (http.Handler, error) {
 	sessionService, err := do.Invoke[service.SessionService](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
@@ -20,7 +20,7 @@ func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
 	}
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		session, err := sessionService.GetRegistrationSession(request.Cookies())
+		session, err := sessionService.GetLoginSession(request.Cookies())
 		if err != nil {
 			http.Error(writer, fmt.Sprintf("error getting registration session: %s", err.Error()), http.StatusBadRequest)
 			return
@@ -32,7 +32,7 @@ func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
 			return
 		}
 
-		handle, err := authService.Register(request.Context(), challengeResponse, session)
+		handle, err := authService.Login(request.Context(), challengeResponse, session)
 		if err != nil {
 			http.Error(writer, fmt.Sprintf("error registering user: %s", err.Error()), http.StatusBadRequest)
 		}
@@ -44,7 +44,7 @@ func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
 		}
 		http.SetCookie(writer, sessionCookie)
 
-		resetCookie := sessionService.ResetRegistrationSession()
+		resetCookie := sessionService.ResetLoginSession()
 		http.SetCookie(writer, resetCookie)
 
 		writer.Header().Set("Content-Type", "text/plain")

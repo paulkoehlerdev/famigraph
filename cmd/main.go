@@ -56,6 +56,12 @@ func main() {
 	// endpoints
 	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
+
+	do.ProvideNamed(injector, endpoints.LoginName, endpoints.NewLogin)
+	do.ProvideNamed(injector, endpoints.APICreateLoginChallengeName, endpoints.NewCreateLoginChallenge)
+	do.ProvideNamed(injector, endpoints.APISolveLoginChallengeName, endpoints.NewSolveLoginChallenge)
+	do.ProvideNamed(injector, endpoints.LogoutName, endpoints.NewLogout)
+
 	do.ProvideNamed(injector, endpoints.RegisterName, endpoints.NewRegister)
 	do.ProvideNamed(injector, endpoints.APICreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)
 	do.ProvideNamed(injector, endpoints.APISolveRegisterChallengeName, endpoints.NewSolveRegisterChallenge)

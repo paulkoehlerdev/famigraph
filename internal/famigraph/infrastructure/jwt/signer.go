@@ -62,25 +62,25 @@ func (s SignerRepositoryImpl) Validate(signedData string) ([]byte, time.Time, er
 		return s.secret, nil
 	})
 	if err != nil {
-		return nil, time.Time{}, fmt.Errorf("parsing token: %w", err)
+		return nil, time.Unix(0, 0), fmt.Errorf("parsing token: %w", err)
 	}
 
 	if !token.Valid {
-		return nil, time.Time{}, fmt.Errorf("token is invalid")
+		return nil, time.Unix(0, 0), fmt.Errorf("token is invalid")
 	}
 
 	claims, ok := token.Claims.(*jwtclaims)
 	if !ok || claims == nil {
-		return nil, time.Time{}, fmt.Errorf("token claims is invalid")
+		return nil, time.Unix(0, 0), fmt.Errorf("token claims is invalid")
 	}
 
 	if claims.ExpiresAt.Before(time.Now()) {
-		return nil, time.Time{}, fmt.Errorf("token is expired")
+		return nil, time.Unix(0, 0), fmt.Errorf("token is expired")
 	}
 
 	data, err := base64.StdEncoding.DecodeString(claims.Data)
 	if err != nil {
-		return nil, time.Time{}, fmt.Errorf("decoding token: %w", err)
+		return nil, time.Unix(0, 0), fmt.Errorf("decoding token: %w", err)
 	}
 
 	return data, claims.ExpiresAt.Time, nil

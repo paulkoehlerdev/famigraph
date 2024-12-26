@@ -8,7 +8,9 @@ import (
 	"net/http"
 )
 
-func NewViewEndpoint(name string, view string) func(injector *do.Injector) (http.Handler, error) {
+type dataCallback func(request *http.Request) (map[string]interface{}, error)
+
+func newViewEndpoint(name string, view string, dataCallback dataCallback) func(injector *do.Injector) (http.Handler, error) {
 	return func(injector *do.Injector) (http.Handler, error) {
 		templates, err := do.Invoke[*template.Template](injector)
 		if err != nil {
@@ -22,7 +24,14 @@ func NewViewEndpoint(name string, view string) func(injector *do.Injector) (http
 		logger = logger.With("service", "endpoint", "endpoint", name)
 
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			err = templates.ExecuteTemplate(writer, view, map[string]interface{}{})
+			data, err := dataCallback(request)
+			if err != nil {
+				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				logger.Error("error handling request", "error", err, "code", http.StatusInternalServerError)
+				return
+			}
+
+			err = templates.ExecuteTemplate(writer, view, data)
 			if err != nil {
 				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				logger.Error("error handling request", "error", err, "code", http.StatusInternalServerError)
@@ -32,4 +41,8 @@ func NewViewEndpoint(name string, view string) func(injector *do.Injector) (http
 			writer.Header().Set("Content-Type", "html/text")
 		}), nil
 	}
+}
+
+func noDataCallback(request *http.Request) (map[string]interface{}, error) {
+	return map[string]interface{}{}, nil
 }

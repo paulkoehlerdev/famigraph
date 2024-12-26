@@ -23,12 +23,14 @@ func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
 				return
 			}
 
-			cookie, err := sessionService.RefreshSession(r.Cookies())
+			cookie, handle, err := sessionService.RefreshSession(r.Cookies())
 			http.SetCookie(w, cookie)
 			if err != nil {
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
+
+			r = r.WithContext(sessionService.StoreSessionInContext(r.Context(), handle))
 
 			next.ServeHTTP(w, r)
 		})

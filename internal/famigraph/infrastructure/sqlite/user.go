@@ -72,7 +72,7 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 
 	var user entity.User
 	var userHandle string
-	var credentials bytes.Buffer
+	var credentials string
 	err := row.Scan(&userHandle, &credentials)
 	if err != nil {
 		return nil, fmt.Errorf("scanning user: %w", err)
@@ -83,7 +83,7 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 		return nil, fmt.Errorf("decoding user: %w", err)
 	}
 
-	err = json.NewDecoder(&credentials).Decode(&user.Credentials)
+	err = json.Unmarshal([]byte(credentials), &user.Credentials)
 	if err != nil {
 		return nil, fmt.Errorf("decoding user: %w", err)
 	}

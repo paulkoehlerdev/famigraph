@@ -57,35 +57,10 @@ func NewServer(injector *do.Injector) (*Server, error) {
 
 	mux := http.NewServeMux()
 
-	indexEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.IndexName)
+	err = createEndpointMux(mux, injector)
 	if err != nil {
-		return nil, fmt.Errorf("getting index endpoint: %w", err)
+		return nil, fmt.Errorf("creating endpoint mux: %w", err)
 	}
-	mux.Handle("GET /", indexEndpoint)
-
-	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
-	if err != nil {
-		return nil, fmt.Errorf("getting connect endpoint: %w", err)
-	}
-	mux.Handle("GET /connect", connectEndpoint)
-
-	registerEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.RegisterName)
-	if err != nil {
-		return nil, fmt.Errorf("getting register endpoint: %w", err)
-	}
-	mux.Handle("GET /register", registerEndpoint)
-
-	createRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APICreateRegisterChallengeName)
-	if err != nil {
-		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
-	}
-	mux.Handle("GET /register/challenge", createRegisterChallengeEndpoint)
-
-	solveRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APISolveRegisterChallengeName)
-	if err != nil {
-		return nil, fmt.Errorf("getting register get challenge endpoint: %w", err)
-	}
-	mux.Handle("POST /register/challenge", solveRegisterChallengeEndpoint)
 
 	authMiddleware, err := do.InvokeNamed[middleware.Middleware](injector, middlewares.AuthName)
 	if err != nil {
@@ -127,4 +102,62 @@ func NewServer(injector *do.Injector) (*Server, error) {
 	}
 
 	return server, nil
+}
+
+func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
+	indexEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.IndexName)
+	if err != nil {
+		return fmt.Errorf("getting index endpoint: %w", err)
+	}
+	mux.Handle("GET /", indexEndpoint)
+
+	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
+	if err != nil {
+		return fmt.Errorf("getting connect endpoint: %w", err)
+	}
+	mux.Handle("GET /connect", connectEndpoint)
+
+	loginEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.LoginName)
+	if err != nil {
+		return fmt.Errorf("getting login endpoint: %w", err)
+	}
+	mux.Handle("GET /login", loginEndpoint)
+
+	createLoginChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APICreateLoginChallengeName)
+	if err != nil {
+		return fmt.Errorf("getting login get challenge endpoint: %w", err)
+	}
+	mux.Handle("GET /login/challenge", createLoginChallengeEndpoint)
+
+	solveLoginChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APISolveLoginChallengeName)
+	if err != nil {
+		return fmt.Errorf("getting login get challenge endpoint: %w", err)
+	}
+	mux.Handle("POST /login/challenge", solveLoginChallengeEndpoint)
+
+	logoutEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.LogoutName)
+	if err != nil {
+		return fmt.Errorf("getting logout endpoint: %w", err)
+	}
+	mux.Handle("GET /logout", logoutEndpoint)
+
+	registerEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.RegisterName)
+	if err != nil {
+		return fmt.Errorf("getting register endpoint: %w", err)
+	}
+	mux.Handle("GET /register", registerEndpoint)
+
+	createRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APICreateRegisterChallengeName)
+	if err != nil {
+		return fmt.Errorf("getting register get challenge endpoint: %w", err)
+	}
+	mux.Handle("GET /register/challenge", createRegisterChallengeEndpoint)
+
+	solveRegisterChallengeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.APISolveRegisterChallengeName)
+	if err != nil {
+		return fmt.Errorf("getting register get challenge endpoint: %w", err)
+	}
+	mux.Handle("POST /register/challenge", solveRegisterChallengeEndpoint)
+
+	return nil
 }

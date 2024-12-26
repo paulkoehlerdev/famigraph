@@ -18,8 +18,8 @@ type AuthService interface {
 	GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error)
 	Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error)
 
-	GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error)
-	Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error
+	GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error)
+	Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) (entity.UserHandle, error)
 }
 
 type authserviceimpl struct {
@@ -132,12 +132,48 @@ func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnR
 	return tUser.Handle, nil
 }
 
-func (a *authserviceimpl) GetLoginChallenge(ctx context.Context) (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
-	// TODO implement me
-	panic("implement me")
+func (a *authserviceimpl) GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
+	options, webauthnSession, err := a.webauthn.BeginDiscoverableLogin()
+	if err != nil {
+		return nil, value.WebauthnLoginSessionData{}, fmt.Errorf("starting usernameless registration: %w", err)
+	}
+
+	challenge, err := json.Marshal(options.Response)
+	if err != nil {
+		return nil, value.WebauthnLoginSessionData{}, fmt.Errorf("marshalling registration challenge: %w", err)
+	}
+
+	session, err := json.Marshal(webauthnSession)
+	if err != nil {
+		return nil, value.WebauthnLoginSessionData{}, fmt.Errorf("marshalling registration webauthnSession: %w", err)
+	}
+
+	return challenge, value.WebauthnLoginSessionData{
+		Raw:    session,
+		Expiry: webauthnSession.Expires,
+	}, nil
 }
 
-func (a *authserviceimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) error {
-	// TODO implement me
-	panic("implement me")
+func (a *authserviceimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) (entity.UserHandle, error) {
+	parsedResponse, err := protocol.ParseCredentialRequestResponseBytes(response)
+	if err != nil {
+		return nil, fmt.Errorf("parsing credential request response: %w", err)
+	}
+
+	var webauthnSession webauthn.SessionData
+	err = json.Unmarshal(session.Raw, &webauthnSession)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling webauthn session: %w", err)
+	}
+
+	var user *entity.User
+	_, err = a.webauthn.ValidateDiscoverableLogin(func(rawID, userHandle []byte) (webauthn.User, error) {
+		user, err = a.userRepo.GetUser(ctx, userHandle)
+		return user, err
+	}, webauthnSession, parsedResponse)
+	if err != nil {
+		return nil, fmt.Errorf("validating discoverable login: %w", err)
+	}
+
+	return user.Handle, nil
 }

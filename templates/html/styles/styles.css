@@ -20,8 +20,7 @@ body {
     height: 100vh;
 }
 
-h1 {
-    font-size: 2em;
+h1, h1, h3 {
     font-weight: bold;
     margin-bottom: 0.75em;
 }
@@ -34,23 +33,40 @@ h1 {
     }
 }
 
+
+.error {
+    margin: 1em;
+    padding: 1em;
+    border: 3px solid #0271c2;
+    border-radius: 5px;
+}
+
 .hidden {
     display: none;
 }
 
-button {
+button, a.button {
+    margin-top: 0.75em;
+    text-decoration: none;
     font-size: 14px;
     padding: 0.8em 3em;
     font-weight: bold;
     background-color: #0271c2;
     color: #fff;
     border-radius: 5px;
-    border: none;
+    border: 2px solid #0271c2;
     cursor: pointer;
 }
 
-button:hover {
+.btn-secondary {
+    background-color: transparent !important;
+    border: 2px solid #0271c2 !important;
+    color: #0271c2 !important;
+}
+
+button:hover, a.button:hover {
     background-color: #015fa4;
+    border-color: #015fa4;
 }
 
 {{ end }}

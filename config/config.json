@@ -26,7 +26,7 @@
     }
   },
   "session": {
-    "expiry": "30s",
+    "expiry": "12h",
     "cookiePrefix": "famigraph",
     "jwt": {
       "secret": "36cde562e0bd29635e5dc06ca7f32e7f70db2f4898c28741122cb14961a9cc81"
