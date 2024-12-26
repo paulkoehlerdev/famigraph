@@ -8,9 +8,9 @@ import (
 )
 
 func NewLogout(injector *do.Injector) (http.Handler, error) {
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
-		return nil, fmt.Errorf("getting SessionService: %w", err)
+		return nil, fmt.Errorf("getting Session: %w", err)
 	}
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

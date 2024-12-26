@@ -9,7 +9,7 @@ import (
 )
 
 func NewIndex(injector *do.Injector) (http.Handler, error) {
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
 	}

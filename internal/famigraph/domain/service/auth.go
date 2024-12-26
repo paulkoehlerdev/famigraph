@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-type AuthService interface {
+type Auth interface {
 	GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error)
 	Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error)
 
@@ -22,12 +22,12 @@ type AuthService interface {
 	Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) (entity.UserHandle, error)
 }
 
-type authserviceimpl struct {
+type authimpl struct {
 	webauthn *webauthn.WebAuthn
 	userRepo repository.User
 }
 
-func NewAuthService(injector *do.Injector) (AuthService, error) {
+func NewAuthService(injector *do.Injector) (Auth, error) {
 	config, err := do.Invoke[config.Config](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting config: %w", err)
@@ -70,13 +70,13 @@ func NewAuthService(injector *do.Injector) (AuthService, error) {
 		return nil, fmt.Errorf("getting user repository: %w", err)
 	}
 
-	return &authserviceimpl{
+	return &authimpl{
 		webauthn: webauthn,
 		userRepo: userRepo,
 	}, nil
 }
 
-func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error) {
+func (a *authimpl) GetRegistrationChallenge() (value.WebauthnRegistrationChallengeData, value.WebauthnRegistrationSessionData, error) {
 	user, err := entity.NewUserWithRandomID()
 	if err != nil {
 		return nil, value.WebauthnRegistrationSessionData{}, fmt.Errorf("creating new anonymous user: %w", err)
@@ -103,7 +103,7 @@ func (a *authserviceimpl) GetRegistrationChallenge() (value.WebauthnRegistration
 	}, nil
 }
 
-func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error) {
+func (a *authimpl) Register(ctx context.Context, response value.WebauthnRegistrationChallengeResponseData, session value.WebauthnRegistrationSessionData) (entity.UserHandle, error) {
 	parsedResponse, err := protocol.ParseCredentialCreationResponseBytes(response)
 	if err != nil {
 		return nil, fmt.Errorf("parsing credential creation response: %w", err)
@@ -132,7 +132,7 @@ func (a *authserviceimpl) Register(ctx context.Context, response value.WebauthnR
 	return tUser.Handle, nil
 }
 
-func (a *authserviceimpl) GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
+func (a *authimpl) GetLoginChallenge() (value.WebauthnLoginChallengeData, value.WebauthnLoginSessionData, error) {
 	options, webauthnSession, err := a.webauthn.BeginDiscoverableLogin()
 	if err != nil {
 		return nil, value.WebauthnLoginSessionData{}, fmt.Errorf("starting usernameless registration: %w", err)
@@ -154,7 +154,7 @@ func (a *authserviceimpl) GetLoginChallenge() (value.WebauthnLoginChallengeData,
 	}, nil
 }
 
-func (a *authserviceimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) (entity.UserHandle, error) {
+func (a *authimpl) Login(ctx context.Context, response value.WebauthnLoginChallengeResponseData, session value.WebauthnLoginSessionData) (entity.UserHandle, error) {
 	parsedResponse, err := protocol.ParseCredentialRequestResponseBytes(response)
 	if err != nil {
 		return nil, fmt.Errorf("parsing credential request response: %w", err)

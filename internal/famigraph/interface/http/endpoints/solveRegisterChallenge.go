@@ -10,12 +10,12 @@ import (
 )
 
 func NewSolveRegisterChallenge(injector *do.Injector) (http.Handler, error) {
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
 	}
 
-	authService, err := do.Invoke[service.AuthService](injector)
+	authService, err := do.Invoke[service.Auth](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting auth service: %w", err)
 	}

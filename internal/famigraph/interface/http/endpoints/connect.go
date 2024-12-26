@@ -20,7 +20,7 @@ func NewConnect(injector *do.Injector) (http.Handler, error) {
 		return nil, fmt.Errorf("getting config: %w", err)
 	}
 
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
 	}

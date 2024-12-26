@@ -10,14 +10,14 @@ import (
 )
 
 func NewCreateRegisterChallenge(injector *do.Injector) (http.Handler, error) {
-	authService, err := do.Invoke[service.AuthService](injector)
+	authService, err := do.Invoke[service.Auth](injector)
 	if err != nil {
-		return nil, fmt.Errorf("getting AuthService: %w", err)
+		return nil, fmt.Errorf("getting Auth: %w", err)
 	}
 
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
-		return nil, fmt.Errorf("getting SessionService: %w", err)
+		return nil, fmt.Errorf("getting Session: %w", err)
 	}
 
 	logger, err := do.Invoke[*slog.Logger](injector)

@@ -10,7 +10,7 @@ import (
 )
 
 func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
-	sessionService, err := do.Invoke[service.SessionService](injector)
+	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting auth service: %w", err)
 	}
