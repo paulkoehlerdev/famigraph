@@ -1,0 +1,3 @@
+ansible_host: 49.12.215.213
+ansible_port: 42022
+ansible_user: root

@@ -3,11 +3,11 @@ package config
 import (
 	_ "embed"
 	"encoding/json"
+	"flag"
+	"fmt"
 	"github.com/samber/do"
+	"os"
 )
-
-//go:embed config.json
-var jsonStr []byte
 
 type Config struct {
 	Logger struct {
@@ -51,8 +51,20 @@ type Config struct {
 }
 
 func LoadConfig(_ *do.Injector) (Config, error) {
+	path := flag.String("config", "config.json", "path to config file")
+	flag.Parse()
+
+	if *path == "" {
+		return Config{}, fmt.Errorf("path to config file is required")
+	}
+
+	file, err := os.ReadFile(*path)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not read config file: %w", err)
+	}
+
 	var config Config
-	if err := json.Unmarshal(jsonStr, &config); err != nil {
+	if err := json.Unmarshal(file, &config); err != nil {
 		return Config{}, err
 	}
 	return config, nil

@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/middlewares"
 	"github.com/paulkoehlerdev/famigraph/pkg/middleware"

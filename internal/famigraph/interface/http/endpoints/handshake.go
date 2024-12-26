@@ -44,7 +44,7 @@ func NewHandshake(injector *do.Injector) (http.Handler, error) {
 		if err != nil {
 			logger.Error("error handling request", "error", err, "code", http.StatusBadRequest)
 
-			err := templates.ExecuteTemplate(writer, "views/handshake/failed", map[string]interface{}{})
+			err = templates.ExecuteTemplate(writer, "views/handshake/failed", map[string]interface{}{})
 			if err != nil {
 				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				logger.Error("error handling request", "error", err, "code", http.StatusInternalServerError)

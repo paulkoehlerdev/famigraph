@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/repository"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/value"

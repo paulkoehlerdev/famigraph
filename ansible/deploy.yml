@@ -1,0 +1,5 @@
+
+- name: Deploy Project
+  hosts: all
+  roles:
+      - famigraph

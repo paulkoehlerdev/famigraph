@@ -1,0 +1,20 @@
+- name: Create directories
+  file:
+      path: "{{ item }}"
+      state: directory
+  with_items:
+  - "/opt/famigraph/"
+  - "/opt/famigraph/crt"
+  - "/opt/famigraph/bin"
+  - "/var/lib/famigraph/"
+
+- name: Copy needed files
+  template:
+      src: ".{{ item }}.j2"
+      dest: "{{ item }}"
+  with_items:
+  - "/opt/famigraph/config.json"
+  - "/opt/famigraph/crt/certificate.crt"
+  - "/opt/famigraph/crt/private.key"
+
+# TODO: create systemd file and copy binary

@@ -22,6 +22,8 @@ type QRCode interface {
 }
 
 // ForegroundColor is based on 38c3 accent-a color: #B2AAFF
+//
+//nolint:gochecknoglobals
 var ForegroundColor = color.RGBA{
 	R: 0xB2,
 	G: 0xAA,
@@ -30,6 +32,8 @@ var ForegroundColor = color.RGBA{
 }
 
 // BackgroundColor is based on 38c3 background color: #0F000A
+//
+//nolint:gochecknoglobals
 var BackgroundColor = color.RGBA{
 	R: 0x0F,
 	G: 0x00,

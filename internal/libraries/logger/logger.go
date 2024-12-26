@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 	"github.com/lmittmann/tint"
-	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/samber/do"
 	"log/slog"
 	"os"

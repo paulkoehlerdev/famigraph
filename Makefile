@@ -40,6 +40,6 @@ clean: ## Clean build artifacts
 	@echo "Cleaning build artifacts..."
 	# TODO implement
 
-deploy: ## Deploy to production
+deploy: lint test build ## Deploy to production
 	@echo "Deploying to production..."
-	# TODO implement
+	ansible-playbook ansible/deploy.yml -i ansible/inventory --ask-vault-pass

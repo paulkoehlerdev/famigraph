@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/jwt"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/random"

@@ -1,0 +1,35 @@
+famigraph:
+    certificate:
+        cert: ~
+        key: ~
+
+    config:
+        logger:
+            level: "info"
+        server:
+            addr: "0.0.0.0:443"
+            domain: "famigraph.xyz"
+            tls:
+                enabled: true
+                key: "/opt/famigraph/crt/private.key"
+                crt: "/opt/famigraph/crt/certificate.crt"
+            shutdownTimeout: "1m"
+        webauthn:
+            timeout:
+                registration: "300s"
+                login: "120s"
+            relyingParty:
+                id: "famigraph.xyz"
+                displayName: "famigraph"
+                allowedOrigins:
+                    - "https://famigraph.xyz"
+        session:
+            expiry: "12h"
+            cookiePrefix: "famigraph"
+            jwt:
+                secret: ~
+        connect:
+            signingKey: ~
+            expiry: "12h"
+        database:
+            path: "/var/lib/famigraph/db.sqlite3"

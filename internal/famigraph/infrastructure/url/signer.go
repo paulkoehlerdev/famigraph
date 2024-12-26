@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/paulkoehlerdev/famigraph/config"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/repository"
 	"github.com/samber/do"
 	"net/url"
@@ -54,18 +54,18 @@ func (s SignerRepositoryImpl) Sign(url *url.URL, expiry time.Time) (string, erro
 	return url.String(), nil
 }
 
-func (s SignerRepositoryImpl) Validate(signedUrl *url.URL) (time.Time, error) {
-	signature := signedUrl.Query().Get("sig")
+func (s SignerRepositoryImpl) Validate(signedURL *url.URL) (time.Time, error) {
+	signature := signedURL.Query().Get("sig")
 
-	query := signedUrl.Query()
+	query := signedURL.Query()
 	query.Set("sig", EmptySignature)
-	signedUrl.RawQuery = query.Encode()
+	signedURL.RawQuery = query.Encode()
 
-	if signature != s.sign(signedUrl.String()) {
+	if signature != s.sign(signedURL.String()) {
 		return time.Unix(0, 0), fmt.Errorf("invalid signature")
 	}
 
-	expirySeconds, err := strconv.Atoi(signedUrl.Query().Get("exp"))
+	expirySeconds, err := strconv.Atoi(signedURL.Query().Get("exp"))
 	if err != nil {
 		return time.Unix(0, 0), fmt.Errorf("parsing expiry time: %w", err)
 	}
