@@ -24,7 +24,7 @@ type AuthService interface {
 
 type authserviceimpl struct {
 	webauthn *webauthn.WebAuthn
-	userRepo repository.UserRepository
+	userRepo repository.User
 }
 
 func NewAuthService(injector *do.Injector) (AuthService, error) {
@@ -65,7 +65,7 @@ func NewAuthService(injector *do.Injector) (AuthService, error) {
 		return nil, fmt.Errorf("creating webauthn instance: %w", err)
 	}
 
-	userRepo, err := do.Invoke[repository.UserRepository](injector)
+	userRepo, err := do.Invoke[repository.User](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting user repository: %w", err)
 	}

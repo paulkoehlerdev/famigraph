@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/entity"
@@ -21,7 +20,7 @@ type UserRepositoryImpl struct {
 	userInsertQuery *sql.Stmt
 }
 
-func NewUserRepository(injector *do.Injector) (repository.UserRepository, error) {
+func NewUserRepository(injector *do.Injector) (repository.User, error) {
 	logger, err := do.Invoke[*slog.Logger](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting logger: %w", err)
@@ -64,8 +63,7 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 			return nil, fmt.Errorf("preparing query: %w", err)
 		}
 	}
-	dbhandle := base64.StdEncoding.EncodeToString(handle)
-	row := u.userGetQuery.QueryRowContext(ctx, dbhandle)
+	row := u.userGetQuery.QueryRowContext(ctx, handle.String())
 	if row.Err() != nil {
 		return nil, fmt.Errorf("getting user: %w", row.Err())
 	}
@@ -78,7 +76,7 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandl
 		return nil, fmt.Errorf("scanning user: %w", err)
 	}
 
-	user.Handle, err = base64.StdEncoding.DecodeString(userHandle)
+	user.Handle, err = entity.HandleFromString(userHandle)
 	if err != nil {
 		return nil, fmt.Errorf("decoding user: %w", err)
 	}
@@ -106,8 +104,7 @@ func (u UserRepositoryImpl) AddUser(ctx context.Context, user *entity.User) erro
 		return fmt.Errorf("encoding user: %w", err)
 	}
 
-	dbhandle := base64.StdEncoding.EncodeToString(user.Handle)
-	res, err := u.userInsertQuery.ExecContext(ctx, dbhandle, credentials.String())
+	res, err := u.userInsertQuery.ExecContext(ctx, user.Handle.String(), credentials.String())
 	if err != nil {
 		return fmt.Errorf("adding user: %w", err)
 	}

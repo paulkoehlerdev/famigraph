@@ -13,9 +13,9 @@ const (
 	qrCodeRecoveryLevel = qrcode.Medium
 )
 
-var _ QRCodeService = (*qrcodeserviceimpl)(nil)
+var _ QRCode = (*qrcodeserviceimpl)(nil)
 
-type QRCodeService interface {
+type QRCode interface {
 	// Encode the text into a embeddable base64-string image qrcode
 	Encode(text string) (entity.QRCode, error)
 }
@@ -37,6 +37,6 @@ func (i qrcodeserviceimpl) Encode(text string) (entity.QRCode, error) {
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(pngBytes), nil
 }
 
-func NewQRCodeService(_ *do.Injector) (QRCodeService, error) {
+func NewQRCodeService(_ *do.Injector) (QRCode, error) {
 	return qrcodeserviceimpl{}, nil
 }

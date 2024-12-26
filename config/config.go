@@ -41,6 +41,10 @@ type Config struct {
 			Secret string `json:"secret"`
 		} `json:"jwt"`
 	} `json:"session"`
+	Connect struct {
+		SigningKey string `json:"signingKey"`
+		Expiry     string `json:"expiry"`
+	} `json:"connect"`
 	Database struct {
 		Path string `json:"path"`
 	} `json:"database"`

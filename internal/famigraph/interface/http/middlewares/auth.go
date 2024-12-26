@@ -17,6 +17,8 @@ func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// TODO: add redirect after login
+
 			// ignore /login, /register paths to be able to access login page
 			if strings.HasPrefix(r.URL.Path, "/login") || strings.HasPrefix(r.URL.Path, "/register") {
 				next.ServeHTTP(w, r)

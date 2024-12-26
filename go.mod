@@ -3,7 +3,6 @@ module github.com/paulkoehlerdev/famigraph
 go 1.23
 
 require (
-	github.com/dgraph-io/badger/v4 v4.5.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/lmittmann/tint v1.0.5
 	github.com/samber/do v1.6.0

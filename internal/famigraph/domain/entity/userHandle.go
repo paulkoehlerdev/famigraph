@@ -2,10 +2,11 @@ package entity
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 )
 
-type UserHandle = []byte
+type UserHandle []byte
 
 func NewUserHandle() (UserHandle, error) {
 	id := make([]byte, 32)
@@ -15,4 +16,12 @@ func NewUserHandle() (UserHandle, error) {
 	}
 
 	return id, nil
+}
+
+func HandleFromString(s string) (UserHandle, error) {
+	return base64.URLEncoding.DecodeString(s)
+}
+
+func (u UserHandle) String() string {
+	return base64.URLEncoding.EncodeToString(u)
 }
