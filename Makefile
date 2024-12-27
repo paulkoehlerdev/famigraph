@@ -28,6 +28,10 @@ build: ## Build the application
 	@echo "Building the application..."
 	@go build -o build/famigraph -ldflags='-s -w -X "main.version=dev"' ./cmd
 
+build-amd64: ## Crosscompile the application for amd64
+	@echo "Building the application (form amd64)..."
+	@GOOS=linux GOARCH=amd64 go build -o build/famigraph-amd64 -ldflags='-s -w -X "main.version=dev"' ./cmd
+
 lint: ## Lint the project
 	@echo "Linting..."
 	@golangci-lint run
@@ -38,8 +42,8 @@ test: ## Run all tests
 
 clean: ## Clean build artifacts
 	@echo "Cleaning build artifacts..."
-	# TODO implement
+	@rm -rf build/*
 
-deploy: lint test build ## Deploy to production
+deploy: lint test build-amd64 ## Deploy to production
 	@echo "Deploying to production..."
 	ansible-playbook ansible/deploy.yml -i ansible/inventory --ask-vault-pass

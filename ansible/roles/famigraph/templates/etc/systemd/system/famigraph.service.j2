@@ -1,0 +1,14 @@
+[Unit]
+Description=Famigraph (running famigraph.xyz)
+After=network.target
+
+[Service]
+ExecStart=/opt/famigraph/bin/famigraph --config /opt/famigraph/config.json
+Restart=always
+RestartSec=5
+WorkingDirectory=/opt/famigraph/
+User=famigraph
+Group=famigraph
+
+[Install]
+WantedBy=multi-user.target

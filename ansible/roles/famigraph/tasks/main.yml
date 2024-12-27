@@ -1,20 +1,59 @@
-- name: Create directories
+- name: create user
+  user:
+    name: famigraph
+    comment: "Famigraph User (for running famigraph.xyz)"
+    shell: /sbin/nologin
+    state: present
+    create_home: no
+    system: yes
+
+- name: create directories
   file:
       path: "{{ item }}"
       state: directory
+      owner: famigraph
+      group: famigraph
   with_items:
   - "/opt/famigraph/"
   - "/opt/famigraph/crt"
   - "/opt/famigraph/bin"
   - "/var/lib/famigraph/"
 
-- name: Copy needed files
+- name: copy needed files
   template:
       src: ".{{ item }}.j2"
       dest: "{{ item }}"
+      owner: famigraph
+      group: famigraph
   with_items:
   - "/opt/famigraph/config.json"
   - "/opt/famigraph/crt/certificate.crt"
   - "/opt/famigraph/crt/private.key"
+  - "/etc/systemd/system/famigraph.service"
 
-# TODO: create systemd file and copy binary
+- name: copy binary
+  copy:
+      src: "../../../build/famigraph-amd64"
+      dest: "/opt/famigraph/bin/famigraph"
+      mode: 0755
+      owner: famigraph
+      group: famigraph
+
+- name: Allow binary to bind port 443
+  shell: sudo setcap 'cap_net_bind_service=+ep' /opt/famigraph/bin/famigraph
+
+- name: systemd daemon_reload
+  systemd:
+      daemon_reload: true
+
+- name: enable and restart famigraph
+  systemd:
+      name: famigraph
+      enabled: true
+      state: restarted
+
+- name: open firewall
+  ufw:
+      rule: allow
+      port: 443
+      proto: tcp
