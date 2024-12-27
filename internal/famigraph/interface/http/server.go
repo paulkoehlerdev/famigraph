@@ -63,14 +63,8 @@ func NewServer(injector *do.Injector) (*Server, error) {
 		return nil, fmt.Errorf("creating endpoint mux: %w", err)
 	}
 
-	authMiddleware, err := do.InvokeNamed[middleware.Middleware](injector, middlewares.AuthName)
-	if err != nil {
-		return nil, fmt.Errorf("getting auth middleware: %w", err)
-	}
-
 	handler := middleware.Stack(
 		middleware.Logging(logger),
-		authMiddleware,
 	)(mux)
 
 	shutdownTimeout, err := time.ParseDuration(config.Server.ShutdownTimeout)
@@ -128,6 +122,11 @@ func NewServer(injector *do.Injector) (*Server, error) {
 }
 
 func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
+	authMiddleware, err := do.InvokeNamed[middleware.Middleware](injector, middlewares.AuthName)
+	if err != nil {
+		return fmt.Errorf("getting auth middleware: %w", err)
+	}
+
 	indexEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.IndexName)
 	if err != nil {
 		return fmt.Errorf("getting index endpoint: %w", err)
@@ -144,13 +143,13 @@ func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
 	if err != nil {
 		return fmt.Errorf("getting connect endpoint: %w", err)
 	}
-	mux.Handle("GET /connect", connectEndpoint)
+	mux.Handle("GET /connect", authMiddleware(connectEndpoint))
 
 	handshakeEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.HandshakeName)
 	if err != nil {
 		return fmt.Errorf("getting handshake endpoint: %w", err)
 	}
-	mux.Handle("GET /handshake", handshakeEndpoint)
+	mux.Handle("GET /handshake", authMiddleware(handshakeEndpoint))
 
 	loginEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.LoginName)
 	if err != nil {

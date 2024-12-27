@@ -47,13 +47,14 @@ func main() {
 	do.Provide(injector, sqliteRepo.NewUserRepository)
 	do.Provide(injector, jwt.NewSignerRepository)
 	do.Provide(injector, url.NewURLSignerRepository)
-	do.Provide(injector, random.NewOTC)
+	do.Provide(injector, random.NewOTCRepository)
 
 	// services
 	do.Provide(injector, service.NewQRCodeService)
 	do.Provide(injector, service.NewAuthService)
 	do.Provide(injector, service.NewSessionService)
 	do.Provide(injector, service.NewConnectionService)
+	do.Provide(injector, service.NewStatisticsService)
 
 	// middlewares
 	do.ProvideNamed(injector, middlewares.AuthName, middlewares.NewAuth)

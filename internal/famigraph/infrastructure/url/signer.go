@@ -39,6 +39,9 @@ func NewURLSignerRepository(injector *do.Injector) (repository.URLSigner, error)
 func (s SignerRepositoryImpl) Sign(url *url.URL, expiry time.Time) (string, error) {
 	time := int(expiry.UnixMilli() / 1000)
 
+	host := url.Host
+	scheme := url.Scheme
+
 	url.Scheme = ""
 	url.Host = ""
 
@@ -50,6 +53,9 @@ func (s SignerRepositoryImpl) Sign(url *url.URL, expiry time.Time) (string, erro
 	query = url.Query()
 	query.Set("sig", s.sign(url.String()))
 	url.RawQuery = query.Encode()
+
+	url.Scheme = scheme
+	url.Host = host
 
 	return url.String(), nil
 }

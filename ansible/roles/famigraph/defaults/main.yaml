@@ -32,5 +32,8 @@ famigraph:
         connect:
             signingKey: ~
             expiry: "12h"
+        statistics:
+            updateInterval: 1m
+            updateTimeout: 1s
         database:
             path: "/var/lib/famigraph/db.sqlite3"

@@ -44,7 +44,7 @@ a {
     color: var(--color-highlight)
 }
 
-h1, h1, h3 {
+h1, h2, h3, p {
     margin-bottom: 0.75em;
 }
 
@@ -71,6 +71,24 @@ button, a.button {
     border-radius: 5px;
     border: 2px solid var(--color-primary);
     cursor: pointer;
+}
+
+input[type="text"] {
+    margin-top: 0.75em;
+    font-size: 14px;
+    padding: 0.8em 1em; /* Match button padding height */
+    font-weight: bold;
+    border-radius: 5px;
+    border: 2px solid var(--color-primary); /* Match button border */
+    outline: none;
+    width: 100%; /* Optional: adjust width as needed */
+    max-width: 300px; /* Prevent it from being too wide */
+    box-sizing: border-box; /* Ensure padding fits inside width */
+}
+
+input[type="text"]:focus {
+    border-color: var(--color-highlight); /* Highlight border on focus */
+    box-shadow: 0 0 5px var(--color-primary); /* Add a subtle glow */
 }
 
 .btn-secondary {

@@ -59,7 +59,7 @@ func NewConnect(injector *do.Injector) (http.Handler, error) {
 
 		err = templates.ExecuteTemplate(writer, "views/connect", map[string]interface{}{
 			"qrcode":    template.URL(qrcode), //nolint:gosec
-			"signedURL": urlStr,
+			"signedURL": template.URL(urlStr), //nolint:gosec
 		})
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

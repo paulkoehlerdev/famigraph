@@ -15,11 +15,14 @@ import (
 )
 
 type UserRepositoryImpl struct {
-	db                    *sql.DB
-	userGetQuery          *sql.Stmt
-	checkUserQuery        *sql.Stmt
-	userInsertQuery       *sql.Stmt
-	connectionInsertQuery *sql.Stmt
+	db                        *sql.DB
+	userGetQuery              *sql.Stmt
+	checkUserQuery            *sql.Stmt
+	userConnectionsCountQuery *sql.Stmt
+	connectionsCountQuery     *sql.Stmt
+	userCountQuery            *sql.Stmt
+	userInsertQuery           *sql.Stmt
+	connectionInsertQuery     *sql.Stmt
 }
 
 func NewUserRepository(injector *do.Injector) (repository.User, error) {
@@ -60,13 +63,14 @@ func NewUserRepository(injector *do.Injector) (repository.User, error) {
 func (u UserRepositoryImpl) checkUser(ctx context.Context, handle entity.UserHandle) bool {
 	if u.checkUserQuery == nil {
 		var err error
+		//nolint:staticcheck
 		u.checkUserQuery, err = u.db.Prepare("SELECT COUNT(*) FROM users WHERE handle = ?")
 		if err != nil {
 			return false
 		}
 	}
 
-	row := u.userGetQuery.QueryRowContext(ctx, handle.String())
+	row := u.checkUserQuery.QueryRowContext(ctx, handle.String())
 	if row.Err() != nil {
 		return false
 	}
@@ -156,8 +160,8 @@ func (u UserRepositoryImpl) AddConnection(ctx context.Context, handleA entity.Us
 	}
 
 	// make sure the users exist
-	if u.checkUser(ctx, handleA) && u.checkUser(ctx, handleB) {
-		return fmt.Errorf("users need to exist")
+	if !u.checkUser(ctx, handleA) || !u.checkUser(ctx, handleB) {
+		return fmt.Errorf("users need to exist: a: %v, b: %v", handleA, handleB)
 	}
 
 	handleAStr, handleBStr := handleA.String(), handleB.String()
@@ -186,4 +190,73 @@ func (u UserRepositoryImpl) AddConnection(ctx context.Context, handleA entity.Us
 	}
 
 	return nil
+}
+
+func (u UserRepositoryImpl) GetUserConnectionsCount(ctx context.Context, handle entity.UserHandle) (int, error) {
+	if u.userConnectionsCountQuery == nil {
+		var err error
+		u.userConnectionsCountQuery, err = u.db.Prepare("SELECT COUNT(*) FROM connections WHERE user1_handle = ? OR user2_handle = ?")
+		if err != nil {
+			return 0, fmt.Errorf("preparing query: %w", err)
+		}
+	}
+
+	var connections int
+	row := u.userConnectionsCountQuery.QueryRowContext(ctx, handle.String(), handle.String())
+	if row.Err() != nil {
+		return 0, fmt.Errorf("getting connections count: %w", row.Err())
+	}
+
+	err := row.Scan(&connections)
+	if err != nil {
+		return 0, fmt.Errorf("scanning connections: %w", err)
+	}
+
+	return connections, nil
+}
+
+func (u UserRepositoryImpl) GetOverallConnectionsCount(ctx context.Context) (int, error) {
+	if u.connectionsCountQuery == nil {
+		var err error
+		u.connectionsCountQuery, err = u.db.Prepare("SELECT COUNT(*) FROM connections")
+		if err != nil {
+			return 0, fmt.Errorf("preparing query: %w", err)
+		}
+	}
+
+	var connections int
+	row := u.connectionsCountQuery.QueryRowContext(ctx)
+	if row.Err() != nil {
+		return 0, fmt.Errorf("getting connections count: %w", row.Err())
+	}
+
+	err := row.Scan(&connections)
+	if err != nil {
+		return 0, fmt.Errorf("scanning connections: %w", err)
+	}
+
+	return connections, nil
+}
+
+func (u UserRepositoryImpl) GetOverallUserCount(ctx context.Context) (int, error) {
+	if u.userCountQuery == nil {
+		var err error
+		u.userCountQuery, err = u.db.Prepare("SELECT COUNT(*) FROM users")
+		if err != nil {
+			return 0, fmt.Errorf("preparing query: %w", err)
+		}
+	}
+
+	row := u.userCountQuery.QueryRowContext(ctx)
+	if row.Err() != nil {
+		return 0, fmt.Errorf("getting connections count: %w", row.Err())
+	}
+
+	var connections int
+	err := row.Scan(&connections)
+	if err != nil {
+		return 0, fmt.Errorf("scanning connections: %w", err)
+	}
+
+	return connections, nil
 }

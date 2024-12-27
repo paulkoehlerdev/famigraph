@@ -17,6 +17,6 @@ func NewLogout(injector *do.Injector) (http.Handler, error) {
 		cookie := sessionService.ResetSession()
 		http.SetCookie(writer, cookie)
 
-		http.Redirect(writer, request, "/login", http.StatusFound)
+		http.Redirect(writer, request, "/", http.StatusFound)
 	}), nil
 }

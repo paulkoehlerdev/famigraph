@@ -1,13 +1,65 @@
-{{ define "views/index" }}
+{{ define "views/index/public" }}
 <!DOCTYPE html>
 <html lang="en">
 {{ template "components/head" }}
 <body>
 <div class="container">
     <h1>famigraph</h1>
-    <p>Welcome, <code>{{ .UserHandle }}</code>!</p>
-    <a href="/logout" class="button">logout</a>
+    <div class="content">
+        <h2>Welcome!</h2>
+        {{ template "views/index/note" . }}
+        {{ template "views/index/statistics" . }}
+        <h3>Login/Register to join: </h3>
+        <div style="padding-top: 0.75em">
+            <a href="/login" class="button">Login</a>
+            <a href="/register" class="button">Register</a>
+        </div>
+    </div>
 </div>
 </body>
 </html>
+{{ end }}
+
+{{ define "views/index/personal" }}
+<!DOCTYPE html>
+<html lang="en">
+{{ template "components/head" }}
+<body>
+<div class="container">
+    <h1>famigraph</h1>
+    <div class="content">
+        <h2>Welcome, <code>{{ .UserHandle }}</code>!</h2>
+        {{ template "views/index/note" . }}
+        {{ template "views/index/statistics" . }}
+        <p>You have connected with <code>{{ .PersonalConnectionCount }}</code> creatures</p>
+
+        <h3>Connect with other users: </h3>
+        <div style="padding-top: 0.75em">
+            <a href="/connect" class="button">Connect</a>
+            <a href="/logout" class="button">Logout</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+{{ end }}
+
+{{ define "views/index/note" }}
+<p style="max-width: 80ch">
+    <b>Famigraph</b> is a project designed to map connections within a community anonymously.
+    Users can identify themselves using any FIDO2-enabled key and establish connections by either scanning a QR code or allowing others to scan theirs.
+    <br>
+    This project is currently under development, so occasional hiccups may occur. A public graph of connections will be available soon™.
+    <br>
+    If you encounter any bugs or vulnerabilities, please report them on <a href="https://github.com/paulkoehlerdev/famigraph">Github</a>.
+</p>
+{{ end }}
+
+{{ define "views/index/statistics" }}
+<h3>Statistics</h3>
+{{ if .IsErr }}
+<p>There was an error fetching the statistics... Maybe there will be statistics here again soon</p>
+{{ else }}
+<p>There are <code>{{ .UserCount }}</code> creatures with <code>{{ .ConnectionsCount }}</code> connections already here</p>
+{{ end }}
 {{ end }}

@@ -7,13 +7,38 @@
         .qrcode {
             max-width: 90%;
         }
+
+        .copy-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>famigraph</h1>
     <img src="{{ .qrcode }}" class="qrcode" alt="QR Code">
-    <a href="{{ .signedURL }}">sharable link</a> <!--TODO: create a copy paste field here -->
+    <div class="copy-container">
+        <input type="text" id="copyBox" value="{{ .signedURL }}" disabled/>
+        <button id="copyBtn" onclick="copyText()">Copy</button>
+    </div>
+    <script>
+        // TODO: refactor
+        function copyText() {
+            const inputBox = document.getElementById('copyBox');
+            inputBox.select();
+            inputBox.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(inputBox.value)
+                .then(() => {
+                    document.querySelector('#copyBtn').innerText = 'Copied!';
+                    setTimeout(() => {
+                        document.querySelector('#copyBtn').innerText = 'Copy';
+                    }, 1000);
+                })
+                .catch(err => console.error('Failed to copy text: ', err));
+        }
+    </script>
 </div>
 </body>
 </html>

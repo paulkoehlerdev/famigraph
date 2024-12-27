@@ -46,6 +46,10 @@ type Config struct {
 		SigningKey string `json:"signingKey"`
 		Expiry     string `json:"expiry"`
 	} `json:"connect"`
+	Statistics struct {
+		UpdateInterval string `json:"updateInterval"`
+		UpdateTimeout  string `json:"updateTimeout"`
+	} `json:"statistics"`
 	Database struct {
 		Path string `json:"path"`
 	} `json:"database"`

@@ -11,7 +11,7 @@ import (
 type OTC struct {
 }
 
-func NewOTC(_ *do.Injector) (repository.OTC, error) {
+func NewOTCRepository(_ *do.Injector) (repository.OTC, error) {
 	return OTC{}, nil
 }
 

@@ -37,6 +37,10 @@
     "signingKey": "36cde562e0bd29635e5dc06ca7f32e7f70db2f4898c28741122cb14961a9cc81",
     "expiry": "12h"
   },
+  "statistics": {
+    "updateInterval": "1m",
+    "updateTimeout": "10s"
+  },
   "database": {
     "path": "./tmp/testing.sqlite3"
   }
