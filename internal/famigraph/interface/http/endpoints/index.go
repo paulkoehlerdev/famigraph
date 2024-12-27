@@ -58,6 +58,7 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 				logger.Error("error handling request", "error", err, "code", http.StatusInternalServerError)
 				return
 			}
+			return
 		}
 
 		userConnectionsCount, err := statisticsService.GetUserConnections(request.Context(), handle)
