@@ -16,6 +16,7 @@ import (
 type Server struct {
 	shutdownTimeout time.Duration
 	logger          *slog.Logger
+	tlsserver       *http.Server
 	server          *http.Server
 }
 
@@ -37,7 +38,7 @@ func (s *Server) listenAndServe() {
 }
 
 func (s *Server) listenAndServeTLS(certFile, keyFile string) {
-	err := s.server.ListenAndServeTLS(certFile, keyFile)
+	err := s.tlsserver.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		s.logger.Error("error while listening", "err", err)
 	}
@@ -77,9 +78,30 @@ func NewServer(injector *do.Injector) (*Server, error) {
 		return nil, fmt.Errorf("parsing config.ShutdownTimeout: %w", err)
 	}
 
+	var httpHandler http.Handler
+	if config.Server.TLS.Enabled {
+		httpHandler = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			request.URL.Scheme = "https"
+			request.URL.Host = config.Server.Domain
+			http.Redirect(writer, request, request.URL.String(), http.StatusMovedPermanently)
+		})
+	} else {
+		httpHandler = handler
+	}
+
 	server := &Server{
 		shutdownTimeout: shutdownTimeout,
 		logger:          logger,
+		tlsserver: &http.Server{
+			// Defaults given by ChatGPT
+			ReadTimeout:       5 * time.Second,
+			WriteTimeout:      10 * time.Second,
+			IdleTimeout:       60 * time.Second,
+			ReadHeaderTimeout: 2 * time.Second,
+			MaxHeaderBytes:    1 << 20,
+			Addr:              config.Server.TLSAddr,
+			Handler:           handler,
+		},
 		server: &http.Server{
 			// Defaults given by ChatGPT
 			ReadTimeout:       5 * time.Second,
@@ -88,7 +110,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 			ReadHeaderTimeout: 2 * time.Second,
 			MaxHeaderBytes:    1 << 20,
 			Addr:              config.Server.Addr,
-			Handler:           handler,
+			Handler:           httpHandler,
 		},
 	}
 
@@ -96,6 +118,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 		if config.Server.TLS.Crt == nil || config.Server.TLS.Key == nil {
 			return nil, fmt.Errorf("starting server: configuration error: key and cert need to be provided to enable tls")
 		}
+		go server.listenAndServe()
 		go server.listenAndServeTLS(*config.Server.TLS.Crt, *config.Server.TLS.Key)
 	} else {
 		go server.listenAndServe()

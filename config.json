@@ -3,7 +3,8 @@
     "level": "debug"
   },
   "server": {
-    "addr": "0.0.0.0:443",
+    "tlsaddr": "0.0.0.0:443",
+    "addr": "0.0.0.0:80",
     "domain": "famigraph.pkoehler.dev",
     "tls": {
       "enabled": true,

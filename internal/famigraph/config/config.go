@@ -14,9 +14,10 @@ type Config struct {
 		Level string `json:"level"`
 	} `json:"logger"`
 	Server struct {
-		Addr   string `json:"addr"`
-		Domain string `json:"domain"`
-		TLS    struct {
+		TLSAddr string `json:"tlsaddr"`
+		Addr    string `json:"addr"`
+		Domain  string `json:"domain"`
+		TLS     struct {
 			Enabled bool    `json:"enabled"`
 			Crt     *string `json:"crt"`
 			Key     *string `json:"key"`

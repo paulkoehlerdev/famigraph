@@ -52,8 +52,45 @@
       enabled: true
       state: restarted
 
-- name: open firewall
+- name: fetch cloudflare v4 ips
+  uri:
+      url: https://www.cloudflare.com/ips-v4/#
+      return_content: yes
+  register: cloudflare_ipv4_ips
+
+
+- name: fetch cloudflare v6 ips
+  uri:
+      url: https://www.cloudflare.com/ips-v6/#
+      return_content: yes
+  register: cloudflare_ipv6_ips
+
+- name: flush old firewall rules
+  ufw:
+      rule: allow
+      port: "{{ item }}"
+      proto: tcp
+      delete: true
+  with_items:
+    - "80"
+    - "443"
+
+- name: open firewall port 80
+  ufw:
+      rule: allow
+      port: 80
+      proto: tcp
+      from_ip: "{{ item }}"
+  with_items:
+  - "{{ cloudflare_ipv4_ips.content.splitlines() }}"
+  - "{{ cloudflare_ipv6_ips.content.splitlines() }}"
+
+- name: open firewall port 443
   ufw:
       rule: allow
       port: 443
       proto: tcp
+      from_ip: "{{ item }}"
+  with_items:
+  - "{{ cloudflare_ipv4_ips.content.splitlines() }}"
+  - "{{ cloudflare_ipv6_ips.content.splitlines() }}"

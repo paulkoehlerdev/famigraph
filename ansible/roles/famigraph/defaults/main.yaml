@@ -7,7 +7,8 @@ famigraph:
         logger:
             level: "info"
         server:
-            addr: "0.0.0.0:443"
+            tlsaddr: "0.0.0.0:443"
+            addr: "0.0.0.0:80"
             domain: "famigraph.xyz"
             tls:
                 enabled: true

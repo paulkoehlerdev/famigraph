@@ -17,6 +17,7 @@ import (
 type UserRepositoryImpl struct {
 	db                    *sql.DB
 	userGetQuery          *sql.Stmt
+	checkUserQuery        *sql.Stmt
 	userInsertQuery       *sql.Stmt
 	connectionInsertQuery *sql.Stmt
 }
@@ -54,6 +55,29 @@ func NewUserRepository(injector *do.Injector) (repository.User, error) {
 	}
 
 	return UserRepositoryImpl{db: db}, nil
+}
+
+func (u UserRepositoryImpl) checkUser(ctx context.Context, handle entity.UserHandle) bool {
+	if u.checkUserQuery == nil {
+		var err error
+		u.checkUserQuery, err = u.db.Prepare("SELECT COUNT(*) FROM users WHERE handle = ?")
+		if err != nil {
+			return false
+		}
+	}
+
+	row := u.userGetQuery.QueryRowContext(ctx, handle.String())
+	if row.Err() != nil {
+		return false
+	}
+
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count == 1
 }
 
 func (u UserRepositoryImpl) GetUser(ctx context.Context, handle entity.UserHandle) (*entity.User, error) {
@@ -129,6 +153,11 @@ func (u UserRepositoryImpl) AddConnection(ctx context.Context, handleA entity.Us
 		if err != nil {
 			return fmt.Errorf("preparing query: %w", err)
 		}
+	}
+
+	// make sure the users exist
+	if u.checkUser(ctx, handleA) && u.checkUser(ctx, handleB) {
+		return fmt.Errorf("users need to exist")
 	}
 
 	handleAStr, handleBStr := handleA.String(), handleB.String()
