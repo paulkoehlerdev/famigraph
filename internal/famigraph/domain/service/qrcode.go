@@ -52,6 +52,7 @@ func (i qrcodeserviceimpl) Encode(text string) (entity.QRCode, error) {
 
 	code.BackgroundColor = BackgroundColor
 	code.ForegroundColor = ForegroundColor
+	code.DisableBorder = true
 
 	pngBytes, err := code.PNG(qrCodePNGResolution)
 	if err != nil {

@@ -1,12 +1,12 @@
 package middlewares
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/paulkoehlerdev/famigraph/pkg/middleware"
 	"github.com/samber/do"
 	"net/http"
-	"strings"
 )
 
 func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
@@ -17,18 +17,13 @@ func NewAuth(injector *do.Injector) (middleware.Middleware, error) {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: add redirect after login
-
-			// ignore /login, /register paths to be able to access login page
-			if strings.HasPrefix(r.URL.Path, "/login") || strings.HasPrefix(r.URL.Path, "/register") {
-				next.ServeHTTP(w, r)
-				return
-			}
+			continueURL := base64.URLEncoding.EncodeToString([]byte(r.URL.String()))
+			redirectURL := fmt.Sprintf("/login?loc=%s", continueURL)
 
 			cookie, handle, err := sessionService.RefreshSession(r.Cookies())
 			http.SetCookie(w, cookie)
 			if err != nil {
-				http.Redirect(w, r, "/login", http.StatusFound)
+				http.Redirect(w, r, redirectURL, http.StatusFound)
 				return
 			}
 

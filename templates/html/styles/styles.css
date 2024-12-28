@@ -21,6 +21,16 @@ body {
     height: 100vh;
 }
 
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.content {
+    padding: 1em;
+}
+
 h1 {
     color: var(--color-primary);
     font-family: 'pilowlava';

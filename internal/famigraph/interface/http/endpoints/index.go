@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/config"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/domain/service"
 	"github.com/samber/do"
 	"html/template"
@@ -10,6 +11,11 @@ import (
 )
 
 func NewIndex(injector *do.Injector) (http.Handler, error) {
+	config, err := do.Invoke[config.Config](injector)
+	if err != nil {
+		return nil, fmt.Errorf("getting config: %w", err)
+	}
+
 	sessionService, err := do.Invoke[service.Session](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting session service: %w", err)
@@ -18,6 +24,16 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 	statisticsService, err := do.Invoke[service.Statistics](injector)
 	if err != nil {
 		return nil, fmt.Errorf("getting statistics service: %w", err)
+	}
+
+	qrcodeService, err := do.Invoke[service.QRCode](injector)
+	if err != nil {
+		return nil, fmt.Errorf("getting qrcode service: %w", err)
+	}
+
+	sharecode, err := qrcodeService.Encode(config.Server.Domain)
+	if err != nil {
+		return nil, fmt.Errorf("error generating share code: %w", err)
 	}
 
 	templates, err := do.Invoke[*template.Template](injector)
@@ -52,6 +68,7 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 				"IsErr":            isErr,
 				"UserCount":        totalUserCount,
 				"ConnectionsCount": totalConnectionsCount,
+				"ShareCode":        template.URL(sharecode),
 			})
 			if err != nil {
 				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -79,6 +96,7 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 			"UserCount":               totalUserCount,
 			"ConnectionsCount":        totalConnectionsCount,
 			"PersonalConnectionCount": userConnectionsCount,
+			"ShareCode":               template.URL(sharecode),
 		})
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

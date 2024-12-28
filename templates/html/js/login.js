@@ -66,7 +66,15 @@ async function login() {
         return;
     }
 
-    window.location.replace('/');
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const loc = params.get('loc');
+
+    if (loc !== null) {
+        window.location.replace(atob(loc));
+    } else {
+        window.location.replace('/');
+    }
 }
 
 function main() {
