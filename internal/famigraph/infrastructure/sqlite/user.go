@@ -241,7 +241,7 @@ func (u UserRepositoryImpl) GetOverallConnectionsCount(ctx context.Context) (int
 func (u UserRepositoryImpl) GetOverallUserCount(ctx context.Context) (int, error) {
 	if u.userCountQuery == nil {
 		var err error
-		u.userCountQuery, err = u.db.Prepare("SELECT COUNT(*) FROM users")
+		u.userCountQuery, err = u.db.Prepare("SELECT COUNT(DISTINCT users.handle) FROM users JOIN connections ON users.handle = connections.user1_handle OR users.handle = connections.user2_handle")
 		if err != nil {
 			return 0, fmt.Errorf("preparing query: %w", err)
 		}
