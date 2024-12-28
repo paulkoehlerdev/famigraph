@@ -43,11 +43,17 @@ func NewAuthService(injector *do.Injector) (Auth, error) {
 		return nil, fmt.Errorf("parsing webauthn registration timeout: %w", err)
 	}
 
+	tru := true
 	webauthn, err := webauthn.New(&webauthn.Config{
 		RPID:                  config.Webauthn.RelyingParty.ID,
 		RPDisplayName:         config.Webauthn.RelyingParty.DisplayName,
 		RPOrigins:             config.Webauthn.RelyingParty.AllowedOrigins,
 		AttestationPreference: protocol.PreferNoAttestation,
+		AuthenticatorSelection: protocol.AuthenticatorSelection{
+			RequireResidentKey: &tru,
+			ResidentKey:        protocol.ResidentKeyRequirementRequired,
+			UserVerification:   protocol.VerificationDiscouraged,
+		},
 		Timeouts: webauthn.TimeoutsConfig{
 			Login: webauthn.TimeoutConfig{
 				Enforce:    true,

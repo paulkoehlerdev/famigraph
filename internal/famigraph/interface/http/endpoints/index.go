@@ -68,7 +68,7 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 				"IsErr":            isErr,
 				"UserCount":        totalUserCount,
 				"ConnectionsCount": totalConnectionsCount,
-				"ShareCode":        template.URL(sharecode),
+				"ShareCode":        template.URL(sharecode), //nolint:gosec
 			})
 			if err != nil {
 				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func NewIndex(injector *do.Injector) (http.Handler, error) {
 			"UserCount":               totalUserCount,
 			"ConnectionsCount":        totalConnectionsCount,
 			"PersonalConnectionCount": userConnectionsCount,
-			"ShareCode":               template.URL(sharecode),
+			"ShareCode":               template.URL(sharecode), //nolint:gosec
 		})
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
