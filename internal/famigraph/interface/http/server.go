@@ -73,7 +73,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 	}
 
 	var httpHandler http.Handler
-	if config.Server.TLS.Enabled {
+	if true {
 		httpHandler = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			request.URL.Scheme = "https"
 			request.URL.Host = config.Server.Domain
@@ -108,12 +108,9 @@ func NewServer(injector *do.Injector) (*Server, error) {
 		},
 	}
 
-	if config.Server.TLS.Enabled {
-		if config.Server.TLS.Crt == nil || config.Server.TLS.Key == nil {
-			return nil, fmt.Errorf("starting server: configuration error: key and cert need to be provided to enable tls")
-		}
+	if true {
 		go server.listenAndServe()
-		go server.listenAndServeTLS(*config.Server.TLS.Crt, *config.Server.TLS.Key)
+		go server.listenAndServeTLS(config.Server.TLS.Crt, config.Server.TLS.Key)
 	} else {
 		go server.listenAndServe()
 	}
@@ -133,11 +130,11 @@ func createEndpointMux(mux *http.ServeMux, injector *do.Injector) error {
 	}
 	mux.Handle("GET /", indexEndpoint)
 
-	fontsEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.FontsName)
+	staticEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.StaticName)
 	if err != nil {
 		return fmt.Errorf("getting static fonts endpoint: %w", err)
 	}
-	mux.Handle("GET /fonts/", fontsEndpoint)
+	mux.Handle("GET /static/", staticEndpoint)
 
 	connectEndpoint, err := do.InvokeNamed[http.Handler](injector, endpoints.ConnectName)
 	if err != nil {

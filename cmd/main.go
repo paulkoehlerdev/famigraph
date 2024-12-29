@@ -8,9 +8,9 @@ import (
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/random"
 	sqliteRepo "github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/sqlite"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/infrastructure/url"
-	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/endpoints"
 	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/http/middlewares"
+	"github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/templ"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/logger"
 	"github.com/paulkoehlerdev/famigraph/internal/libraries/sqlite"
 	"github.com/paulkoehlerdev/famigraph/pkg/slices"
@@ -60,7 +60,7 @@ func main() {
 	do.ProvideNamed(injector, middlewares.AuthName, middlewares.NewAuth)
 
 	// endpoints
-	do.ProvideNamed(injector, endpoints.FontsName, endpoints.NewFonts)
+	do.ProvideNamed(injector, endpoints.StaticName, endpoints.NewStatic)
 	do.ProvideNamed(injector, endpoints.IndexName, endpoints.NewIndex)
 	do.ProvideNamed(injector, endpoints.ConnectName, endpoints.NewConnect)
 	do.ProvideNamed(injector, endpoints.HandshakeName, endpoints.NewHandshake)
@@ -74,9 +74,9 @@ func main() {
 	do.ProvideNamed(injector, endpoints.APICreateRegisterChallengeName, endpoints.NewCreateRegisterChallenge)
 	do.ProvideNamed(injector, endpoints.APISolveRegisterChallengeName, endpoints.NewSolveRegisterChallenge)
 
-	do.Provide(injector, http.NewServer)
+	do.Provide(injector, templ.NewServer)
 
-	do.MustInvoke[*http.Server](injector)
+	do.MustInvoke[*templ.Server](injector)
 	logger.Info(
 		"started application",
 		"uninvoked",

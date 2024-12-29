@@ -1,7 +1,7 @@
 package endpoints
 
 const (
-	FontsName = "static"
+	StaticName = "static"
 
 	IndexName     = "index"
 	ConnectName   = "getConnect"

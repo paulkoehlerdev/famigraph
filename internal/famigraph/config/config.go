@@ -18,9 +18,8 @@ type Config struct {
 		Addr    string `json:"addr"`
 		Domain  string `json:"domain"`
 		TLS     struct {
-			Enabled bool    `json:"enabled"`
-			Crt     *string `json:"crt"`
-			Key     *string `json:"key"`
+			Crt string `json:"crt"`
+			Key string `json:"key"`
 		} `json:"tls"`
 		ShutdownTimeout string `json:"shutdownTimeout"`
 	} `json:"server"`

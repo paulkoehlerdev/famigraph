@@ -24,7 +24,11 @@ run: build ## Run the application
 dev: ## run in dev mode with air
 	@air -c .air.toml
 
-build: ## Build the application
+generate: ## Run code generation
+	@echo "Running code generation..."
+	@go generate ./...
+
+build: generate ## Build the application
 	@echo "Building the application..."
 	@go build -o build/famigraph -ldflags='-s -w -X "main.version=dev"' ./cmd
 
