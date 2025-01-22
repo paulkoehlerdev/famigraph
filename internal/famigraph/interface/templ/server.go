@@ -82,7 +82,7 @@ func NewServer(injector *do.Injector) (*Server, error) {
 
 func constructHandle(injector *do.Injector) (http.Handler, error) {
 	mux := http.NewServeMux()
-	mux.Handle("/", templ.Handler(layouts.Base()))
+	mux.Handle("/", templ.Handler(layouts.Base(false)))
 	mux.Handle("/static/", StaticHandler())
 
 	return mux, nil

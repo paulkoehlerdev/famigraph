@@ -2,11 +2,12 @@ package layouts
 
 import "github.com/paulkoehlerdev/famigraph/internal/famigraph/interface/templ/styles"
 
+
 css bodyStyle() {
     background-color: var(--color-background);
 }
 
-templ Base() {
+templ Base(loggedIn bool) {
 	<!DOCTYPE html>
     <html lang="en">
         <head>
@@ -15,13 +16,18 @@ templ Base() {
             <meta name="google" content="notranslate"/>
             <title>famigraph</title>
             <link rel="stylesheet" href="/static/css/theme.css">
+            <link rel="stylesheet" href="/static/css/base.css">
             <script src="/static/js/tailwind.min.js"></script>
             <script src="/static/js/htmx.min.js"></script>
         </head>
         <body class={ bodyStyle() }>
-            <button class={ styles.Button() }>
-                Hello World
-            </button>
+            <nav>
+                <h1>famigraph</h1>
+                <div class="subnav">
+                    <a class={ styles.Button() }>Connect</a>
+                    <a class={ styles.Button() }>Logout</a>
+                </div>
+            </nav>
             { children... }
         </body>
     </html>

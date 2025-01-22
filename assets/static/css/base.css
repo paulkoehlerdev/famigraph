@@ -1,0 +1,32 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: spacegrotesk;
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 0 2em;
+    background-color: var(--color-accent-e);
+}
+
+nav > .subnav {
+    display: flex;
+    align-items: center;
+}
+
+nav > h1 {
+    margin: 1em 0;
+}
+
+h1 {
+    font-family: pilowlava;
+    color: var(--color-primary)
+}
